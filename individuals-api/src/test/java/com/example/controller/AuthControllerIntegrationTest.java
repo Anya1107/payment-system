@@ -24,6 +24,7 @@ public class AuthControllerIntegrationTest {
     private final String EMAIL = "testemail@example.com";
     private final String PASSWORD = "test";
     private final String USERNAME = "testuser";
+    private final String BEARER_PREFIX = "Bearer ";
 
     @Autowired
     private WebTestClient webTestClient;
@@ -81,7 +82,7 @@ public class AuthControllerIntegrationTest {
 
         webTestClient.post()
                 .uri("/v1/auth/registration")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + loginResponse.getAccessToken())
+                .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + loginResponse.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(request), UserRegistrationRequest.class)
                 .exchange()
@@ -119,7 +120,7 @@ public class AuthControllerIntegrationTest {
 
         webTestClient.post()
                 .uri("/v1/auth/registration")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + loginResponse.getAccessToken())
+                .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + loginResponse.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(request), UserRegistrationRequest.class)
                 .exchange()
@@ -152,7 +153,7 @@ public class AuthControllerIntegrationTest {
 
         webTestClient.post()
                 .uri("/v1/auth/registration")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + loginResponse.getAccessToken())
+                .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + loginResponse.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(request), UserRegistrationRequest.class)
                 .exchange()

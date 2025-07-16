@@ -2,19 +2,13 @@ package com.example.client;
 
 import com.example.dto.*;
 import com.example.exception.CustomAuthException;
-import com.example.service.UserService;
 import com.google.gson.Gson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -40,8 +34,6 @@ public class KeycloakClient {
     private final String adminEmail;
     private final String adminPassword;
     private final ReactiveJwtDecoder jwtDecoder;
-
-    private final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
     public KeycloakClient(
             @Value("${keycloak.url}") String keycloakUrl,
@@ -150,7 +142,7 @@ public class KeycloakClient {
     private Mono<KeycloakUserDto> fetchUserProfile(String adminToken, String userId) {
         return webClient.get()
                 .uri("/admin/realms/{realm}/users/{id}", realmName, userId)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken)
+                .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + adminToken)
                 .retrieve()
                 .onStatus(status -> status == HttpStatus.UNAUTHORIZED,
                         response -> handleErrorResponse(response, INVALID_ACCESS_TOKEN_ERROR_MESSAGE, HttpStatus.UNAUTHORIZED))
@@ -164,7 +156,7 @@ public class KeycloakClient {
     private Mono<List<String>> fetchUserRoles(String adminToken, String userId) {
         return webClient.get()
                 .uri("/admin/realms/{realm}/users/{id}/role-mappings/realm", realmName, userId)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken)
+                .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + adminToken)
                 .retrieve()
                 .onStatus(status -> status == HttpStatus.UNAUTHORIZED,
                         response -> handleErrorResponse(response, INVALID_ACCESS_TOKEN_ERROR_MESSAGE, HttpStatus.UNAUTHORIZED))
@@ -184,20 +176,6 @@ public class KeycloakClient {
                 .roles(roles)
                 .createdAt(createdAt);
     }
-
-//    public Mono<UserInfoResponse> fetchUserInfo(String accessToken) {
-//        return webClient.get()
-//                .uri("/realms/{realm}/protocol/openid-connect/userinfo", realmName)
-//                .header(HttpHeaders.AUTHORIZATION, accessToken)
-//                .retrieve()
-//                .onStatus(status -> status == HttpStatus.UNAUTHORIZED,
-//                        response -> handleErrorResponse(response, INVALID_ACCESS_TOKEN_ERROR_MESSAGE, HttpStatus.UNAUTHORIZED))
-//                .onStatus(status -> status == HttpStatus.NOT_FOUND,
-//                        response -> handleErrorResponse(response, USER_NOT_FOUND_ERROR_MESSAGE, HttpStatus.NOT_FOUND))
-//                .onStatus(HttpStatusCode::is5xxServerError,
-//                        response -> handleErrorResponse(response, KEYCLOAK_INTERNAL_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR))
-//                .bodyToMono(UserInfoResponse.class);
-//    }
 
     private Mono<CustomAuthException> handleErrorResponse(ClientResponse response, String defaultMessage, HttpStatus defaultStatus) {
         return response.bodyToMono(ErrorResponse.class)

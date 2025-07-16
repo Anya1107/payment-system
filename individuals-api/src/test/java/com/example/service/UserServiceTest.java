@@ -65,7 +65,7 @@ class UserServiceTest {
 
         StepVerifier.create(userService.login(new UserLoginRequest().email(EMAIL).password(password)))
                 .expectErrorSatisfies(ex -> {
-                    Assertions.assertTrue(ex instanceof CustomAuthException);
+                    Assertions.assertInstanceOf(CustomAuthException.class, ex);
                     Assertions.assertEquals(401, ((CustomAuthException) ex).getStatus());
                 })
                 .verify();
@@ -111,7 +111,7 @@ class UserServiceTest {
 
         StepVerifier.create(userService.register(request, ACCESS_TOKEN))
                 .expectErrorSatisfies(ex -> {
-                    Assertions.assertTrue(ex instanceof CustomAuthException);
+                    Assertions.assertInstanceOf(CustomAuthException.class, ex);
                     Assertions.assertEquals(409, ((CustomAuthException) ex).getStatus());
                 })
                 .verify();
@@ -149,7 +149,7 @@ class UserServiceTest {
 
         StepVerifier.create(userService.refreshToken(request))
                 .expectErrorSatisfies(ex -> {
-                    Assertions.assertTrue(ex instanceof CustomAuthException);
+                    Assertions.assertInstanceOf(CustomAuthException.class, ex);
                     Assertions.assertEquals(401, ((CustomAuthException) ex).getStatus());
                 })
                 .verify();
@@ -181,7 +181,7 @@ class UserServiceTest {
 
         StepVerifier.create(userService.getCurrentUser(invalidAccessToken))
                 .expectErrorSatisfies(ex -> {
-                    Assertions.assertTrue(ex instanceof CustomAuthException);
+                    Assertions.assertInstanceOf(CustomAuthException.class, ex);
                     Assertions.assertEquals(401, ((CustomAuthException) ex).getStatus());
                 })
                 .verify();
