@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: payment-system
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: myclient
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - openid
+              - profile
+              - email
+        provider:
+          keycloak:
+            issuer-uri: http://keycloak:8080/realms/myrealm
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://keycloak:8080/realms/myrealm/protocol/openid-connect/certs
+
+server:
+  port: 8081
+
+keycloak:
+  url: http://keycloak:8080
+  realm: myrealm
+  client-id: myclient
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+admin:
+  email: murzenok.anya@mail.ru
+  password: test
