@@ -1,13 +1,13 @@
-package com.example.handler;
+package com.individuals.handler;
 
-import com.example.dto.ErrorResponse;
-import com.example.exception.CustomAuthException;
+import com.individuals.dto.ErrorResponse;
+import com.individuals.exception.CustomAuthException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import static com.example.util.Constants.UNEXPECTED_ERROR_MESSAGE;
+import static com.individuals.util.Constants.UNEXPECTED_ERROR_MESSAGE;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

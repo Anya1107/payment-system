@@ -1,4 +1,4 @@
-package com.example.dto;
+package com.individuals.dto;
 
 public record KeycloakRoleDto(
         String id,

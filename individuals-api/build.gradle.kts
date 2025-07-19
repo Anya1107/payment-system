@@ -66,8 +66,8 @@ openApiGenerate {
     generatorName.set("java")
     inputSpec.set("$rootDir/individuals-api/openapi/individuals-api.yaml")
     outputDir.set(project.layout.buildDirectory.dir("generated-sources/openapi").get().asFile.absolutePath)
-    apiPackage.set("com.example.api")
-    modelPackage.set("com.example.dto")
+    apiPackage.set("com.individuals.api")
+    modelPackage.set("com.individuals.dto")
     additionalProperties.put("useJakartaEe", "true")
 }
 

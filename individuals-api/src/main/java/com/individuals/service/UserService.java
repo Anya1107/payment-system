@@ -1,14 +1,14 @@
-package com.example.service;
+package com.individuals.service;
 
-import com.example.client.KeycloakClient;
-import com.example.dto.*;
+import com.individuals.client.KeycloakClient;
+import com.individuals.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import static com.example.util.Constants.*;
+import static com.individuals.util.Constants.*;
 
 
 @Service

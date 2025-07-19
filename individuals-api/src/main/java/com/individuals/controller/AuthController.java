@@ -1,7 +1,7 @@
-package com.example.controller;
+package com.individuals.controller;
 
-import com.example.dto.*;
-import com.example.service.UserService;
+import com.individuals.dto.*;
+import com.individuals.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

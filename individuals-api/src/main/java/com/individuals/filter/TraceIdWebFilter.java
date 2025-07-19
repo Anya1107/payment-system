@@ -1,4 +1,4 @@
-package com.example.filter;
+package com.individuals.filter;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.MDC;
@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
-import static com.example.util.Constants.TRACE_ID_PARAM;
+import static com.individuals.util.Constants.TRACE_ID_PARAM;
 
 @Component
 public class TraceIdWebFilter implements WebFilter {

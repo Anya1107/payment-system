@@ -1,4 +1,4 @@
-package com.example.util;
+package com.individuals.util;
 
 public class Constants {
     public static final String INVALID_CREDENTIALS_ERROR_MESSAGE = "Incorrect login or password";

@@ -1,7 +1,7 @@
-package com.example.client;
+package com.individuals.client;
 
-import com.example.dto.*;
-import com.example.exception.CustomAuthException;
+import com.individuals.dto.*;
+import com.individuals.exception.CustomAuthException;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.example.util.Constants.*;
+import static com.individuals.util.Constants.*;
 
 @Component
 public class KeycloakClient {

@@ -1,8 +1,8 @@
-package com.example.service;
+package com.individuals.service;
 
-import com.example.client.KeycloakClient;
-import com.example.dto.*;
-import com.example.exception.CustomAuthException;
+import com.individuals.client.KeycloakClient;
+import com.individuals.dto.*;
+import com.individuals.exception.CustomAuthException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

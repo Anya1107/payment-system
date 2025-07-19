@@ -1,6 +1,6 @@
-package com.example.exception;
+package com.individuals.exception;
 
-import com.example.dto.ErrorResponse;
+import com.individuals.dto.ErrorResponse;
 import lombok.Getter;
 
 @Getter
