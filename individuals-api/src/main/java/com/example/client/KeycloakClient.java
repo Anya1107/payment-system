@@ -31,16 +31,14 @@ public class KeycloakClient {
     private final WebClient webClient;
     private final String realmName;
     private final String clientId;
-    private final String adminEmail;
-    private final String adminPassword;
+    private final String clientSecret;
     private final ReactiveJwtDecoder jwtDecoder;
 
     public KeycloakClient(
             @Value("${keycloak.url}") String keycloakUrl,
             @Value("${keycloak.realm}") String realmName,
             @Value("${keycloak.client-id}") String clientId,
-            @Value("${admin.email}") String adminEmail,
-            @Value("${admin.password}") String adminPassword,
+            @Value("${keycloak.client-secret}") String clientSecret,
             ReactiveJwtDecoder jwtDecoder
     ) {
         this.webClient = WebClient.builder()
@@ -48,9 +46,8 @@ public class KeycloakClient {
                 .build();
         this.realmName = realmName;
         this.clientId = clientId;
+        this.clientSecret = clientSecret;
         this.jwtDecoder = jwtDecoder;
-        this.adminEmail = adminEmail;
-        this.adminPassword = adminPassword;
     }
 
     public Mono<TokenResponse> requestToken(String username, String password) {
@@ -59,6 +56,7 @@ public class KeycloakClient {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .body(BodyInserters.fromFormData(GRANT_TYPE, PASSWORD_PARAM)
                         .with(CLIENT_ID_PARAM, clientId)
+                        .with(CLIENT_SECRET_PARAM, clientSecret)
                         .with(USERNAME_PARAM, username)
                         .with(PASSWORD_PARAM, password)
                         .with(SCOPE_PARAM, OPEN_ID_PARAM))
@@ -71,21 +69,40 @@ public class KeycloakClient {
                 .map(json -> new Gson().fromJson(json, TokenResponse.class));
     }
 
-    public Mono<Void> createUser(String username, String firstName, String lastName, String email, String password, String accessToken) {
+    public Mono<Void> createUser(String username, String firstName, String lastName, String email, String password) {
+        return requestServiceToken()
+                .flatMap(tokenResponse ->
+                        webClient.post()
+                                .uri("/admin/realms/{realm}/users", realmName)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + tokenResponse.getAccessToken())
+                                .bodyValue(getCreateUserBody(username, firstName, lastName, email, password))
+                                .retrieve()
+                                .onStatus(status -> status == HttpStatus.BAD_REQUEST,
+                                        response -> handleErrorResponse(response, VALIDATION_ERROR_MESSAGE, HttpStatus.BAD_REQUEST))
+                                .onStatus(status -> status == HttpStatus.CONFLICT,
+                                        response -> handleErrorResponse(response,USER_ALREADY_EXISTS_ERROR_MESSAGE, HttpStatus.CONFLICT))
+                                .onStatus(HttpStatusCode::is5xxServerError,
+                                        response -> handleErrorResponse(response, KEYCLOAK_INTERNAL_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR))
+                                .toBodilessEntity()
+                                .then()
+                );
+    }
+
+    public Mono<TokenResponse> requestServiceToken() {
         return webClient.post()
-                .uri("/admin/realms/{realm}/users", realmName)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, accessToken)
-                .bodyValue(getCreateUserBody(username, firstName, lastName, email, password))
+                .uri("/realms/{realm}/protocol/openid-connect/token", realmName)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .body(BodyInserters.fromFormData(GRANT_TYPE, CLIENT_CREDENTIALS_PARAM)
+                        .with(CLIENT_ID_PARAM, clientId)
+                        .with(CLIENT_SECRET_PARAM, clientSecret))
                 .retrieve()
-                .onStatus(status -> status == HttpStatus.BAD_REQUEST,
-                        response -> handleErrorResponse(response, VALIDATION_ERROR_MESSAGE, HttpStatus.BAD_REQUEST))
-                .onStatus(status -> status == HttpStatus.CONFLICT,
-                        response -> handleErrorResponse(response,USER_ALREADY_EXISTS_ERROR_MESSAGE, HttpStatus.CONFLICT))
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> handleErrorResponse(response, INVALID_CLIENT_CREDENTIALS_ERROR_MESSAGE, HttpStatus.UNAUTHORIZED))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> handleErrorResponse(response, KEYCLOAK_INTERNAL_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR))
-                .toBodilessEntity()
-                .then();
+                .bodyToMono(String.class)
+                .map(json -> new Gson().fromJson(json, TokenResponse.class));
     }
 
     public Mono<TokenResponse> refreshToken(String refreshToken) {
@@ -94,6 +111,7 @@ public class KeycloakClient {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .body(BodyInserters.fromFormData(GRANT_TYPE, REFRESH_TOKEN_PARAM)
                         .with(CLIENT_ID_PARAM, clientId)
+                        .with(CLIENT_SECRET_PARAM, clientSecret)
                         .with(REFRESH_TOKEN_PARAM, refreshToken))
                 .retrieve()
                 .onStatus(status -> status == HttpStatus.BAD_REQUEST,
@@ -110,7 +128,7 @@ public class KeycloakClient {
         return decodeJwt(token)
                 .flatMap(this::extractUserId)
                 .flatMap(userId ->
-                        requestToken(adminEmail, adminPassword)
+                        requestServiceToken()
                                 .flatMap(adminToken ->
                                         Mono.zip(
                                                 fetchUserProfile(adminToken.getAccessToken(), userId),

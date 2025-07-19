@@ -5,11 +5,13 @@
   "clients": [
     {
       "clientId": "myclient",
+      "secret": "myclient-secret",
       "protocol": "openid-connect",
       "redirectUris": ["http://localhost:8081/*"],
-      "publicClient": true,
+      "publicClient": false,
       "directAccessGrantsEnabled": true,
-      "standardFlowEnabled": true
+      "standardFlowEnabled": true,
+      "serviceAccountsEnabled": true
     }
   ],
   "roles": {

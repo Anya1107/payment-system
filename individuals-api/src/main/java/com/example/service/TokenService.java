@@ -11,11 +11,11 @@ import reactor.core.publisher.Mono;
 public class TokenService {
     private final KeycloakClient keycloakClient;
 
-    public Mono<TokenResponse> login(String username, String password) {
+    public Mono<TokenResponse> getAccessToken(String username, String password) {
         return keycloakClient.requestToken(username, password);
     }
 
-    public Mono<TokenResponse> refresh(String refreshToken) {
+    public Mono<TokenResponse> getRefreshTokenFromAccess(String refreshToken) {
         return keycloakClient.refreshToken(refreshToken);
     }
 }

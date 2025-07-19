@@ -86,14 +86,14 @@ class UserServiceTest {
                 .accessToken(ACCESS_TOKEN)
                 .refreshToken(REFRESH_TOKEN);
 
-        when(keycloakClient.createUser(USERNAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, ACCESS_TOKEN)).thenReturn(Mono.empty());
+        when(keycloakClient.createUser(USERNAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD)).thenReturn(Mono.empty());
         when(keycloakClient.requestToken(EMAIL, PASSWORD)).thenReturn(Mono.just(expectedTokenResponse));
 
-        StepVerifier.create(userService.register(request, ACCESS_TOKEN))
+        StepVerifier.create(userService.register(request))
                 .expectNextMatches(token -> token.getAccessToken().equals(ACCESS_TOKEN))
                 .verifyComplete();
 
-        verify(keycloakClient).createUser(USERNAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, ACCESS_TOKEN);
+        verify(keycloakClient).createUser(USERNAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD);
         verify(keycloakClient).requestToken(EMAIL, PASSWORD);
     }
 
@@ -106,17 +106,17 @@ class UserServiceTest {
                 .email(EMAIL)
                 .password(PASSWORD);
 
-        when(keycloakClient.createUser(USERNAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, ACCESS_TOKEN)).thenReturn(Mono.error(new CustomAuthException("User already exists", 409)));
-        when(tokenService.login(any(), any())).thenReturn(Mono.never());
+        when(keycloakClient.createUser(USERNAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD)).thenReturn(Mono.error(new CustomAuthException("User already exists", 409)));
+        when(tokenService.getAccessToken(any(), any())).thenReturn(Mono.never());
 
-        StepVerifier.create(userService.register(request, ACCESS_TOKEN))
+        StepVerifier.create(userService.register(request))
                 .expectErrorSatisfies(ex -> {
                     Assertions.assertInstanceOf(CustomAuthException.class, ex);
                     Assertions.assertEquals(409, ((CustomAuthException) ex).getStatus());
                 })
                 .verify();
 
-        verify(keycloakClient).createUser(USERNAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, ACCESS_TOKEN);
+        verify(keycloakClient).createUser(USERNAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD);
         verifyNoMoreInteractions(keycloakClient);
     }
 

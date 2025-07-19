@@ -19,8 +19,8 @@ public class UserService {
 
     private final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
-    public Mono<TokenResponse> register(UserRegistrationRequest request, String accessToken) {
-        return keycloakClient.createUser(request.getUsername(), request.getFirstName(), request.getLastName(), request.getEmail(), request.getPassword(), accessToken)
+    public Mono<TokenResponse> register(UserRegistrationRequest request) {
+        return keycloakClient.createUser(request.getUsername(), request.getFirstName(), request.getLastName(), request.getEmail(), request.getPassword())
                 .doOnSubscribe(s -> LOG.info(USER_CREATING_LOG, request.getEmail()))
                 .doOnSuccess(v -> LOG.info(USER_CREATION_SUCCESS_LOG, request.getEmail()))
                 .doOnError(e -> LOG.error(USER_CREATION_FAILED_LOG, request.getEmail(), e))
@@ -32,7 +32,7 @@ public class UserService {
     }
 
     public Mono<TokenResponse> refreshToken(TokenRefreshRequest request) {
-        return tokenService.refresh(request.getRefreshToken())
+        return tokenService.getRefreshTokenFromAccess(request.getRefreshToken())
                 .doOnSubscribe(s -> LOG.info(TOKEN_REFRESHING_LOG))
                 .doOnSuccess(token -> LOG.info(TOKEN_REFRESH_SUCCESS_LOG))
                 .doOnError(e -> LOG.error(TOKEN_REFRESH_FAILED_LOG, e));
@@ -46,7 +46,7 @@ public class UserService {
     }
 
     private Mono<TokenResponse> loginUser(String email, String password) {
-        return tokenService.login(email, password)
+        return tokenService.getAccessToken(email, password)
                 .doOnSubscribe(s -> LOG.info(USER_LOGIN_LOG, email))
                 .doOnSuccess(token -> LOG.info(USER_LOGIN_SUCCESS_LOG, email))
                 .doOnError(e -> LOG.error(USER_LOGIN_FAILED_LOG, e));

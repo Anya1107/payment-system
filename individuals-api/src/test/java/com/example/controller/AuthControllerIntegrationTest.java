@@ -58,20 +58,6 @@ public class AuthControllerIntegrationTest {
 
     @Test
     void success_registration() {
-        UserLoginRequest loginRequest = new UserLoginRequest()
-                .email(EMAIL)
-                .password(PASSWORD);
-
-        TokenResponse loginResponse = webTestClient.post()
-                .uri("/v1/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(loginRequest), UserLoginRequest.class)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(TokenResponse.class)
-                .returnResult()
-                .getResponseBody();
-
         UserRegistrationRequest request = new UserRegistrationRequest()
                 .username("firstTestuser")
                 .firstName("testFirstName")
@@ -82,7 +68,6 @@ public class AuthControllerIntegrationTest {
 
         webTestClient.post()
                 .uri("/v1/auth/registration")
-                .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + loginResponse.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(request), UserRegistrationRequest.class)
                 .exchange()
@@ -96,20 +81,6 @@ public class AuthControllerIntegrationTest {
 
     @Test
     void registrationFail_existingUser_returnConflict() {
-        UserLoginRequest loginRequest = new UserLoginRequest()
-                .email(EMAIL)
-                .password(PASSWORD);
-
-        TokenResponse loginResponse = webTestClient.post()
-                .uri("/v1/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(loginRequest), UserLoginRequest.class)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(TokenResponse.class)
-                .returnResult()
-                .getResponseBody();
-
         UserRegistrationRequest request = new UserRegistrationRequest()
                 .username(USERNAME)
                 .firstName("testFirstName")
@@ -120,7 +91,6 @@ public class AuthControllerIntegrationTest {
 
         webTestClient.post()
                 .uri("/v1/auth/registration")
-                .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + loginResponse.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(request), UserRegistrationRequest.class)
                 .exchange()
@@ -129,20 +99,6 @@ public class AuthControllerIntegrationTest {
 
     @Test
     void registrationFail_userWithInvalidEmail_returnBadRequest() {
-        UserLoginRequest loginRequest = new UserLoginRequest()
-                .email(EMAIL)
-                .password(PASSWORD);
-
-        TokenResponse loginResponse = webTestClient.post()
-                .uri("/v1/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(loginRequest), UserLoginRequest.class)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(TokenResponse.class)
-                .returnResult()
-                .getResponseBody();
-
         UserRegistrationRequest request = new UserRegistrationRequest()
                 .username(USERNAME)
                 .firstName("testFirstName")
@@ -153,7 +109,6 @@ public class AuthControllerIntegrationTest {
 
         webTestClient.post()
                 .uri("/v1/auth/registration")
-                .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + loginResponse.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(request), UserRegistrationRequest.class)
                 .exchange()

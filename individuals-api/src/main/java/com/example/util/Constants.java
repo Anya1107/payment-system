@@ -10,6 +10,7 @@ public class Constants {
     public static final String USER_NOT_FOUND_ERROR_MESSAGE = "User not found";
     public static final String UNEXPECTED_ERROR_MESSAGE = "Unexpected error";
     public static final String TOKEN_WITHOUT_SUBJECT_ERROR_MESSAGE = "Token does not contain subject (sub)";
+    public static final String INVALID_CLIENT_CREDENTIALS_ERROR_MESSAGE = "Invalid client credentials";
 
     public static final String USERNAME_PARAM = "username";
     public static final String EMAIL_PARAM = "email";
@@ -31,6 +32,8 @@ public class Constants {
     public static final String TRACE_ID_PARAM = "traceId";
     public static final String BEARER_PREFIX = "Bearer ";
     public static final Integer TOKEN_BEGIN_INDEX = 7;
+    public static final String CLIENT_CREDENTIALS_PARAM = "client_credentials";
+    public static final String CLIENT_SECRET_PARAM = "client_secret";
 
     public static final String USER_CREATING_LOG = "Creating user in Keycloak: {}";
     public static final String USER_CREATION_SUCCESS_LOG = "User created successfully: {}";

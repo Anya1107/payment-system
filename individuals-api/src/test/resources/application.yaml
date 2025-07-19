@@ -28,6 +28,7 @@ keycloak:
   url: ${KEYCLOAK_URL:http://localhost:8080}
   realm: myrealm
   client-id: myclient
+  client-secret: myclient-secret
 
 management:
   endpoints:
@@ -38,7 +39,3 @@ management:
     metrics:
       export:
         enabled: true
-
-admin:
-  email: testemail@example.com
-  password: test

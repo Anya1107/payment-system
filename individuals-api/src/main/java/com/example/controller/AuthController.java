@@ -17,11 +17,8 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/registration")
-    public Mono<ResponseEntity<TokenResponse>> register(
-            @RequestHeader(AUTHORIZATION) String accessToken,
-            @RequestBody UserRegistrationRequest request
-    ) {
-        return userService.register(request, accessToken)
+    public Mono<ResponseEntity<TokenResponse>> register(@RequestBody UserRegistrationRequest request) {
+        return userService.register(request)
                 .map(tokenResponse -> ResponseEntity.status(HttpStatus.CREATED).body(tokenResponse));
     }
 

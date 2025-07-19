@@ -3,15 +3,20 @@ plugins {
     id("org.springframework.boot") version "3.5.0"
     id("io.spring.dependency-management") version "1.1.4"
     id("org.openapi.generator") version "7.6.0"
+    application
 }
 
 group = "com.anyamurzenok.paymentsystem"
-version = "1.0-SNAPSHOT"
+version = "1.0.0"
 
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(24))
     }
+}
+
+application {
+    mainClass.set("com.example.IndividualsApplication")
 }
 
 repositories {
