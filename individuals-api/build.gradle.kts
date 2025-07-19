@@ -1,3 +1,13 @@
+val logbackEncoderVersion: String by project
+val gsonVersion: String by project
+val jakartaVersion: String by project
+val okhttp3Version: String by project
+val loggingInterceptorVersion: String by project
+val gsonFireVersion: String by project
+val logbackAppenderVersion: String by project
+val junitBomVersion: String by project
+val keycloakTestContainerVersion: String by project
+
 plugins {
     id("java")
     id("org.springframework.boot") version "3.5.0"
@@ -29,34 +39,18 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-logging")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-
     implementation("org.springframework.security:spring-security-oauth2-client")
-
     implementation("io.micrometer:micrometer-registry-prometheus")
-
-    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
-
-    implementation("com.google.code.gson:gson:2.10.1")
-
-    implementation("jakarta.annotation:jakarta.annotation-api:2.1.1")
-
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-
+    implementation("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
+    implementation("com.google.code.gson:gson:$gsonVersion")
+    implementation("jakarta.annotation:jakarta.annotation-api:$jakartaVersion")
+    implementation("com.squareup.okhttp3:okhttp:$okhttp3Version")
+    implementation("com.squareup.okhttp3:logging-interceptor:$loggingInterceptorVersion")
     implementation("io.gsonfire:gson-fire:1.8.5")
-
-    implementation("com.github.loki4j:loki-logback-appender:2.0.0")
-
-    implementation ("io.jsonwebtoken:jjwt-api:0.11.5")
-
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
-
+    implementation("com.github.loki4j:loki-logback-appender:$logbackAppenderVersion")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
-
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation(platform("org.junit:junit-bom:$junitBomVersion"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("io.projectreactor:reactor-test")
@@ -65,7 +59,7 @@ dependencies {
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux")
-    testImplementation ("com.github.dasniko:testcontainers-keycloak:3.4.0")
+    testImplementation ("com.github.dasniko:testcontainers-keycloak:$keycloakTestContainerVersion")
 }
 
 openApiGenerate {
