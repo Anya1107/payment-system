@@ -44,7 +44,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./infrastructure/prometheus/prometheus.yml:/etc/infrastructure/prometheus/prometheus.yml
     healthcheck:
       test: ["CMD", "wget", "--spider", "http://localhost:9090/-/healthy"]
       interval: 10s
@@ -56,9 +56,9 @@ services:
     container_name: loki
     ports:
       - "3100:3100"
-    command: -config.file=/etc/loki/loki-config.yaml
+    command: -config.file=/etc/infrastructure/loki/loki-config.yaml
     volumes:
-      - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml
+      - ./infrastructure/loki/loki-config.yaml:/etc/infrastructure/loki/loki-config.yaml
       - ./loki-data/index:/loki/index
       - ./loki-data/cache:/loki/cache
       - ./loki-data/chunks:/loki/chunks
@@ -106,8 +106,8 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./infrastructure/grafana/provisioning:/etc/infrastructure/grafana/provisioning
+      - ./infrastructure/grafana/dashboards:/var/lib/infrastructure/grafana/dashboards
     healthcheck:
       test: ["CMD", "wget", "--spider", "http://localhost:3000/api/health"]
       interval: 10s

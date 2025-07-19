@@ -54,6 +54,6 @@ bin/
 ########################
 # Loki, Prometheus & runtime data
 ########################
-loki/data/
+infrastructure/loki/data/
 loki-data/
-prometheus/data/
+infrastructure/prometheus/data/
