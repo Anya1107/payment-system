@@ -92,7 +92,7 @@ participant "Keycloak" as Keycloak
 participant "Users Service" as UsersService
 
 Client -> API: GET /v1/auth/me
-API -> Keycloak: Parse token -> Get user_uid
+API -> Keycloak: Get user_uuid
 
 alt Invalid or missing token
     Keycloak --> API: 401 Unauthorized
@@ -102,9 +102,9 @@ else
         Keycloak --> API: 404 Not Found
         API --> Client: 404 Not Found
     else
-        Keycloak --> API: user_uid
+        Keycloak --> API: user_uuid
 
-        API -> UsersService: GET /api/v1/users/{user_uid}
+        API -> UsersService: GET /api/v1/users/{user_uuid}
 
         alt User not found in DB
             UsersService --> API: 404 Not Found
@@ -127,8 +127,8 @@ participant "Individuals API" as API
 participant "Keycloak" as Keycloak
 participant "Users Service" as UsersService
 
-Client -> API: PUT /v1/auth/update-profile
-API -> Keycloak: Parse token
+Client -> API: PUT /v1/auth/update
+API -> Keycloak: Get user_uuid
 
 alt Invalid or missing token
     Keycloak --> API: 401 Unauthorized
@@ -138,9 +138,9 @@ else
         Keycloak --> API: 404 Not Found
         API --> Client: 404 Not Found
     else
-        Keycloak --> API: user_uid
+        Keycloak --> API: user_uuid
 
-        API -> UsersService: PUT /api/v1/users/{user_uid}\n(обновление user, address, individual)
+        API -> UsersService: PUT /api/v1/users/{user_uuid}\n(обновление user, address, individual)
 
         alt User not found in DB
             UsersService --> API: 404 Not Found
@@ -164,7 +164,7 @@ participant "Keycloak" as Keycloak
 participant "Users Service" as UsersService
 
 Client -> API: DELETE /v1/auth/delete
-API -> Keycloak: Parse token -> Get user_uid
+API -> Keycloak: Get user_uuid
 
 alt Invalid or missing token
     Keycloak --> API: 401 Unauthorized
@@ -174,9 +174,9 @@ else
         Keycloak --> API: 404 Not Found
         API --> Client: 404 Not Found
     else
-        Keycloak --> API: user_uid
+        Keycloak --> API: user_uuid
 
-        API -> UsersService: DELETE /api/v1/users/{user_uid}
+        API -> UsersService: DELETE /api/v1/users/{user_uuid}
 
         alt User not found in DB
             UsersService --> API: 404 Not Found
@@ -184,7 +184,7 @@ else
         else
             UsersService --> API: OK
 
-            API -> Keycloak: DELETE user by user_uid
+            API -> Keycloak: DELETE user by user_uuid
             Keycloak --> API: OK
 
             API --> Client: 204 No Content
