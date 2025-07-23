@@ -10,6 +10,10 @@ A Spring Boot-based microservice for managing users and their related entities (
 
 ## C4 diagram
 
+---
+
+## Individuals Auth system
+
 ```plantuml
 @startuml
 !includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
@@ -38,6 +42,36 @@ Rel(indApi, usersService, "Feign/OpenAPI: CRUD профиля")
 Rel(usersService, usersDb, "JPA", "SQL")
 @enduml
 ```
+---
+
+## User profile service
+
+```plantuml
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(dev, "External Client", "Пользователь, взаимодействующий с Individuals API")
+
+System_Boundary(userSystem, "User Profile System") {
+    Container(usersService, "User Service", "Spring Boot", "Управление пользовательскими профилями")
+    Container(usersDb, "User DB", "PostgreSQL", "Хранение данных пользователей")
+    Container(prometheus, "Prometheus", "Monitoring", "Сбор метрик с сервисов")
+    Container(loki, "Loki", "Logging", "Сбор логов из stdout")
+    Container(tempo, "Tempo", "Tracing", "Сбор распределённых трейсингов")
+    Container(grafana, "Grafana", "Visualization", "Отображение логов и метрик в дэшбордах")
+}
+
+Rel(dev, usersService, "HTTP запросы (регистрация, логин, /me)", "JSON/REST")
+Rel(usersService, usersDb, "JPA", "SQL")
+Rel(usersService, prometheus, "Отправка метрик", "Micrometer")
+Rel(usersService, loki, "Отправка логов", "stdout -> Docker -> Loki")
+Rel(usersService, tempo, "Отправка трейсингов", "OpenTelemetry/OTLP")
+Rel(grafana, prometheus, "Чтение метрик")
+Rel(grafana, loki, "Чтение логов")
+Rel(grafana, tempo, "Чтение трейсингов")
+@enduml
+```
+
 ---
 
 ## Sequence diagrams 
