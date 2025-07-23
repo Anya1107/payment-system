@@ -12,7 +12,7 @@ A Spring Boot-based microservice for managing users and their related entities (
 
 ---
 
-## Individuals Auth system
+## Individuals auth system
 
 ```plantuml
 @startuml
@@ -44,7 +44,7 @@ Rel(usersService, usersDb, "JPA", "SQL")
 ```
 ---
 
-## User profile service
+## User profile system
 
 ```plantuml
 @startuml
