@@ -21,6 +21,14 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.flywaydb:flyway-core:9.16.1")
+    implementation("org.postgresql:postgresql:42.6.0")
+    implementation("org.mapstruct:mapstruct:1.5.5.Final")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }

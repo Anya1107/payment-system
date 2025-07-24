@@ -48,6 +48,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:$loggingInterceptorVersion")
     implementation("io.gsonfire:gson-fire:1.8.5")
     implementation("com.github.loki4j:loki-logback-appender:$logbackAppenderVersion")
+    implementation(project(":common-module"))
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation(platform("org.junit:junit-bom:$junitBomVersion"))
@@ -60,21 +61,6 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux")
     testImplementation ("com.github.dasniko:testcontainers-keycloak:$keycloakTestContainerVersion")
-}
-
-openApiGenerate {
-    generatorName.set("java")
-    inputSpec.set("$rootDir/individuals-api/openapi/individuals-api.yaml")
-    outputDir.set(project.layout.buildDirectory.dir("generated-sources/openapi").get().asFile.absolutePath)
-    apiPackage.set("com.individuals.api")
-    modelPackage.set("com.individuals.dto")
-    additionalProperties.put("useJakartaEe", "true")
-}
-
-sourceSets {
-    getByName("main") {
-        java.srcDir("$buildDir/generated-sources/openapi/src/main/java")
-    }
 }
 
 tasks.test {

@@ -3,3 +3,4 @@ include("src:main:individuals-api")
 findProject(":src:main:individuals-api")?.name = "individuals-api"
 include("individuals-api")
 include("user-service")
+include("common-module")

@@ -1,0 +1,141 @@
+openapi: 3.0.0
+info:
+  title: User service
+  description: Service for managing users and their related entities (address, personal data).
+  version: 1.0.0
+servers:
+  - url: http://localhost:8082/v1
+
+paths:
+  /user/registration:
+    post:
+      summary: User registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+      responses:
+        '201':
+          description: Success registration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+#  /auth/me:
+#    get:
+#      summary: Получение данных текущего пользователя
+#      security:
+#        - bearerAuth: []
+#      responses:
+#        '200':
+#          description: Данные пользователя
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/UserInfoResponse'
+#        '401':
+#          description: Недействительный токен
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ErrorResponse'
+#        '404':
+#          description: Пользователь не найден
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserRegistrationRequest:
+      type: object
+      required: [username, first_name, last_name, email, password, confirm_password]
+      properties:
+        username:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        confirm_password:
+          type: string
+
+    UserLoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    TokenRefreshRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token:
+          type: string
+
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        expires_in:
+          type: integer
+        token_type:
+          type: string
+          example: Bearer
+
+    UserInfoResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        status:
+          type: integer
