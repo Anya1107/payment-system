@@ -4,21 +4,20 @@ import com.userservice.entity.Address;
 import com.userservice.entity.Country;
 import com.userservice.entity.Individual;
 import com.userservice.entity.User;
+import com.userservice.exception.UserAlreadyExistsException;
+import com.userservice.exception.UserNotFoundException;
 import com.userservice.mapper.UserMapper;
 import com.userservice.repository.UserRepository;
 import com.userservice.request.UserRegistrationRequest;
 import com.userservice.request.UserUpdateRequest;
-import com.userservice.response.AddressDto;
-import com.userservice.response.CountryDto;
-import com.userservice.response.IndividualDto;
 import com.userservice.response.UserDto;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
+
+import static com.userservice.util.Constants.*;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +31,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void register(UserRegistrationRequest userRegistrationRequest) {
+        validateUserExistence(userRegistrationRequest);
+
         Address address = addressService.create(userRegistrationRequest.address());
 
         User user = createUser(userRegistrationRequest, address);
@@ -43,21 +44,21 @@ public class UserServiceImpl implements UserService {
     public UserDto getById(UUID id) {
         return userRepository.findById(id)
                 .map(userMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + id));
+                .orElseThrow(() -> new UserNotFoundException(USER_WITH_ID_NOT_FOUND_ERROR_MESSAGE + id, NOT_FOUND_STATUS_CODE));
     }
 
     @Override
     public UserDto getByEmail(String email) {
         return userRepository.findByEmail(email)
                 .map(userMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+                .orElseThrow(() -> new UserNotFoundException(USER_WITH_EMAIL_NOT_FOUND_ERROR_MESSAGE + email, NOT_FOUND_STATUS_CODE));
     }
 
     @Override
     @Transactional
     public void delete(UUID id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(USER_WITH_ID_NOT_FOUND_ERROR_MESSAGE + id, NOT_FOUND_STATUS_CODE));
 
         userRepository.delete(user);
     }
@@ -65,13 +66,23 @@ public class UserServiceImpl implements UserService {
     @Override
     public void update(UUID id, UserUpdateRequest userUpdateRequest) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(USER_WITH_ID_NOT_FOUND_ERROR_MESSAGE + id, NOT_FOUND_STATUS_CODE));
 
         fillUser(userUpdateRequest, user);
         fillIndividual(userUpdateRequest, user);
         fillAddress(userUpdateRequest, user);
 
         userRepository.save(user);
+    }
+
+    private void validateUserExistence(UserRegistrationRequest userRegistrationRequest) {
+        String email = userRegistrationRequest.user().email();
+
+        boolean exists = userRepository.existsByEmail(email);
+
+        if (exists) {
+            throw new UserAlreadyExistsException(USER_ALREADY_EXISTS_ERROR_MESSAGE + email, CONFLICT_STATUS_CODE);
+        }
     }
 
     private User createUser(UserRegistrationRequest userRegistrationRequest, Address address) {

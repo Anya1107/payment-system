@@ -14,4 +14,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @EntityGraph(attributePaths = {"address", "individual"})
     Optional<User> findByEmail(String email);
+
+    boolean existsByEmail(String email);
 }
