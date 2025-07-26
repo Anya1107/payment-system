@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -13,6 +17,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@Audited
+@AuditTable(value = "users_aud", schema = "history")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +29,10 @@ public class User {
 
     private String email;
 
+    @CreationTimestamp
     private LocalDateTime created;
 
-    @Column(nullable = false)
+    @UpdateTimestamp
     private LocalDateTime updated;
 
     @Column(name = "first_name")
@@ -42,14 +49,4 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Individual individual;
-
-    @PrePersist
-    public void onCreate() {
-        created = updated = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void onUpdate() {
-        updated = LocalDateTime.now();
-    }
 }

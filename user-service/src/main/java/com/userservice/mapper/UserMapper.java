@@ -7,11 +7,9 @@ import com.userservice.response.AddressDto;
 import com.userservice.response.IndividualDto;
 import com.userservice.response.UserDto;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    @Mapping(source = "address", target = "address")
     UserDto toDto(User user);
 
     AddressDto toDto(Address address);

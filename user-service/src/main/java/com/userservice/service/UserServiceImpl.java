@@ -67,18 +67,37 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
+        fillUser(userUpdateRequest, user);
+        fillIndividual(userUpdateRequest, user);
+        fillAddress(userUpdateRequest, user);
+
+        userRepository.save(user);
+    }
+
+    private User createUser(UserRegistrationRequest userRegistrationRequest, Address address) {
+        User user = new User();
+
+        user.setEmail(userRegistrationRequest.user().email());
+        user.setSecretKey(userRegistrationRequest.user().secretKey());
+        user.setFirstName(userRegistrationRequest.user().firstName());
+        user.setLastName(userRegistrationRequest.user().lastName());
+        user.setFilled(true);
+        user.setAddress(address);
+        user = userRepository.save(user);
+
+        return user;
+    }
+
+    private void fillUser(UserUpdateRequest userUpdateRequest, User user) {
         if (userUpdateRequest.email() != null) user.setEmail(userUpdateRequest.email());
         if (userUpdateRequest.firstName() != null) user.setFirstName(userUpdateRequest.firstName());
         if (userUpdateRequest.lastName() != null) user.setLastName(userUpdateRequest.lastName());
         if (userUpdateRequest.filled() != null) user.setFilled(userUpdateRequest.filled());
+    }
 
+    private void fillIndividual(UserUpdateRequest userUpdateRequest, User user) {
         if (userUpdateRequest.individual() != null) {
-            Individual individual = user.getIndividual();
-            if (individual == null) {
-                individual = new Individual();
-                individual.setUser(user);
-                user.setIndividual(individual);
-            }
+            Individual individual = getIndividual(user);
             if (userUpdateRequest.individual().passportNumber() != null)
                 individual.setPassportNumber(userUpdateRequest.individual().passportNumber());
             if (userUpdateRequest.individual().phoneNumber() != null)
@@ -86,13 +105,23 @@ public class UserServiceImpl implements UserService {
             if (userUpdateRequest.individual().status() != null)
                 individual.setStatus(userUpdateRequest.individual().status());
         }
+    }
 
+    private Individual getIndividual(User user) {
+        Individual individual = user.getIndividual();
+
+        if (individual == null) {
+            individual = new Individual();
+            individual.setUser(user);
+            user.setIndividual(individual);
+        }
+
+        return individual;
+    }
+
+    private void fillAddress(UserUpdateRequest userUpdateRequest, User user) {
         if (userUpdateRequest.address() != null) {
-            Address address = user.getAddress();
-            if (address == null) {
-                address = new Address();
-                user.setAddress(address);
-            }
+            Address address = getAddress(user);
             if (userUpdateRequest.address().address() != null)
                 address.setAddress(userUpdateRequest.address().address());
             if (userUpdateRequest.address().city() != null)
@@ -106,19 +135,16 @@ public class UserServiceImpl implements UserService {
                 address.setCountry(country);
             }
         }
-
-        userRepository.save(user);
     }
 
-    private User createUser(UserRegistrationRequest userRegistrationRequest, Address address) {
-        User user = new User();
-        user.setEmail(userRegistrationRequest.user().email());
-        user.setSecretKey(userRegistrationRequest.user().secretKey());
-        user.setFirstName(userRegistrationRequest.user().firstName());
-        user.setLastName(userRegistrationRequest.user().lastName());
-        user.setFilled(true);
-        user.setAddress(address);
-        user = userRepository.save(user);
-        return user;
+    private Address getAddress(User user) {
+        Address address = user.getAddress();
+
+        if (address == null) {
+            address = new Address();
+            user.setAddress(address);
+        }
+
+        return address;
     }
 }
