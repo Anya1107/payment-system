@@ -1,3 +1,10 @@
+val gsonVersion: String by project
+val okhttp3Version: String by project
+val loggingInterceptorVersion: String by project
+val jakartaVersion: String by project
+val gsonFireVersion: String by project
+val jacksonDatabindVersion: String by project
+
 plugins {
     id("java")
     id("org.openapi.generator") version "7.6.0"
@@ -5,6 +12,19 @@ plugins {
 
 group = "com.anyamurzenok.paymentsystem"
 version = "1.0.0"
+
+dependencies {
+    implementation("com.google.code.gson:gson:$gsonVersion")
+    implementation("com.squareup.okhttp3:okhttp:$okhttp3Version")
+    implementation("com.squareup.okhttp3:logging-interceptor:$loggingInterceptorVersion")
+    implementation("jakarta.annotation:jakarta.annotation-api:$jakartaVersion")
+    implementation("io.gsonfire:gson-fire:$gsonFireVersion")
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion")
+}
+
+repositories {
+    mavenCentral()
+}
 
 val generateIndividualsApiDtos by tasks.registering(org.openapitools.generator.gradle.plugin.tasks.GenerateTask::class) {
     generatorName.set("java")
@@ -35,4 +55,8 @@ sourceSets {
 //            srcDir("$buildDir/generated-sources/service-b/src/main/java")
         }
     }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.encoding = "UTF-8"
 }
