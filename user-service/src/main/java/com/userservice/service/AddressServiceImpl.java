@@ -1,9 +1,9 @@
 package com.userservice.service;
 
+import com.userservice.dto.AddressCreateRequest;
 import com.userservice.entity.Address;
 import com.userservice.entity.Country;
 import com.userservice.repository.AddressRepository;
-import com.userservice.request.AddressCreateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +15,13 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public Address create(AddressCreateRequest addressCreateRequest) {
-        Country country = countryService.getCountry(addressCreateRequest.countryId());
+        Country country = countryService.getCountry(addressCreateRequest.getCountryId());
 
         Address address = new Address();
-        address.setAddress(addressCreateRequest.address());
-        address.setZipCode(addressCreateRequest.zipCode());
-        address.setCity(addressCreateRequest.city());
-        address.setState(addressCreateRequest.state());
+        address.setAddress(addressCreateRequest.getAddress());
+        address.setZipCode(addressCreateRequest.getZipCode());
+        address.setCity(addressCreateRequest.getCity());
+        address.setState(addressCreateRequest.getState());
         address.setCountry(country);
 
         return addressRepository.save(address);

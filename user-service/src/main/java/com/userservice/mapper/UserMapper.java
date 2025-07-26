@@ -1,11 +1,11 @@
 package com.userservice.mapper;
 
+import com.userservice.dto.AddressDto;
+import com.userservice.dto.IndividualDto;
+import com.userservice.dto.UserDto;
 import com.userservice.entity.Address;
 import com.userservice.entity.Individual;
 import com.userservice.entity.User;
-import com.userservice.response.AddressDto;
-import com.userservice.response.IndividualDto;
-import com.userservice.response.UserDto;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

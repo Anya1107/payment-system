@@ -1,5 +1,8 @@
 package com.userservice.service;
 
+import com.userservice.dto.UserDto;
+import com.userservice.dto.UserRegistrationRequest;
+import com.userservice.dto.UserUpdateRequest;
 import com.userservice.entity.Address;
 import com.userservice.entity.Country;
 import com.userservice.entity.Individual;
@@ -8,9 +11,6 @@ import com.userservice.exception.UserAlreadyExistsException;
 import com.userservice.exception.UserNotFoundException;
 import com.userservice.mapper.UserMapper;
 import com.userservice.repository.UserRepository;
-import com.userservice.request.UserRegistrationRequest;
-import com.userservice.request.UserUpdateRequest;
-import com.userservice.response.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,11 +33,11 @@ public class UserServiceImpl implements UserService {
     public void register(UserRegistrationRequest userRegistrationRequest) {
         validateUserExistence(userRegistrationRequest);
 
-        Address address = addressService.create(userRegistrationRequest.address());
+        Address address = addressService.create(userRegistrationRequest.getAddress());
 
         User user = createUser(userRegistrationRequest, address);
 
-        individualService.create(userRegistrationRequest.individual(), user);
+        individualService.create(userRegistrationRequest.getIndividual(), user);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateUserExistence(UserRegistrationRequest userRegistrationRequest) {
-        String email = userRegistrationRequest.user().email();
+        String email = userRegistrationRequest.getUser().getEmail();
 
         boolean exists = userRepository.existsByEmail(email);
 
@@ -88,10 +88,10 @@ public class UserServiceImpl implements UserService {
     private User createUser(UserRegistrationRequest userRegistrationRequest, Address address) {
         User user = new User();
 
-        user.setEmail(userRegistrationRequest.user().email());
-        user.setSecretKey(userRegistrationRequest.user().secretKey());
-        user.setFirstName(userRegistrationRequest.user().firstName());
-        user.setLastName(userRegistrationRequest.user().lastName());
+        user.setEmail(userRegistrationRequest.getUser().getEmail());
+        user.setSecretKey(userRegistrationRequest.getUser().getSecretKey());
+        user.setFirstName(userRegistrationRequest.getUser().getFirstName());
+        user.setLastName(userRegistrationRequest.getUser().getLastName());
         user.setFilled(true);
         user.setAddress(address);
         user = userRepository.save(user);
@@ -100,21 +100,18 @@ public class UserServiceImpl implements UserService {
     }
 
     private void fillUser(UserUpdateRequest userUpdateRequest, User user) {
-        if (userUpdateRequest.email() != null) user.setEmail(userUpdateRequest.email());
-        if (userUpdateRequest.firstName() != null) user.setFirstName(userUpdateRequest.firstName());
-        if (userUpdateRequest.lastName() != null) user.setLastName(userUpdateRequest.lastName());
-        if (userUpdateRequest.filled() != null) user.setFilled(userUpdateRequest.filled());
+        user.setEmail(userUpdateRequest.getEmail());
+        user.setFirstName(userUpdateRequest.getFirstName());
+        user.setLastName(userUpdateRequest.getLastName());
+        user.setFilled(userUpdateRequest.getFilled());
     }
 
     private void fillIndividual(UserUpdateRequest userUpdateRequest, User user) {
-        if (userUpdateRequest.individual() != null) {
+        if (userUpdateRequest.getIndividual() != null) {
             Individual individual = getIndividual(user);
-            if (userUpdateRequest.individual().passportNumber() != null)
-                individual.setPassportNumber(userUpdateRequest.individual().passportNumber());
-            if (userUpdateRequest.individual().phoneNumber() != null)
-                individual.setPhoneNumber(userUpdateRequest.individual().phoneNumber());
-            if (userUpdateRequest.individual().status() != null)
-                individual.setStatus(userUpdateRequest.individual().status());
+            individual.setPassportNumber(userUpdateRequest.getIndividual().getPassportNumber());
+            individual.setPhoneNumber(userUpdateRequest.getIndividual().getPhoneNumber());
+            individual.setStatus(userUpdateRequest.getIndividual().getStatus());
         }
     }
 
@@ -131,20 +128,15 @@ public class UserServiceImpl implements UserService {
     }
 
     private void fillAddress(UserUpdateRequest userUpdateRequest, User user) {
-        if (userUpdateRequest.address() != null) {
+        if (userUpdateRequest.getAddress() != null) {
             Address address = getAddress(user);
-            if (userUpdateRequest.address().address() != null)
-                address.setAddress(userUpdateRequest.address().address());
-            if (userUpdateRequest.address().city() != null)
-                address.setCity(userUpdateRequest.address().city());
-            if (userUpdateRequest.address().state() != null)
-                address.setState(userUpdateRequest.address().state());
-            if (userUpdateRequest.address().zipCode() != null)
-                address.setZipCode(userUpdateRequest.address().zipCode());
-            if (userUpdateRequest.address().countryId() != null) {
-                Country country = countryService.getCountry(userUpdateRequest.address().countryId());
-                address.setCountry(country);
-            }
+            Country country = countryService.getCountry(userUpdateRequest.getAddress().getCountryId());
+
+            address.setAddress(userUpdateRequest.getAddress().getAddress());
+            address.setCity(userUpdateRequest.getAddress().getCity());
+            address.setState(userUpdateRequest.getAddress().getState());
+            address.setZipCode(userUpdateRequest.getAddress().getZipCode());
+            address.setCountry(country);
         }
     }
 

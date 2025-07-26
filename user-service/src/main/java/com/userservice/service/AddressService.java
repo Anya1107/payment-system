@@ -1,7 +1,7 @@
 package com.userservice.service;
 
+import com.userservice.dto.AddressCreateRequest;
 import com.userservice.entity.Address;
-import com.userservice.request.AddressCreateRequest;
 
 public interface AddressService {
 

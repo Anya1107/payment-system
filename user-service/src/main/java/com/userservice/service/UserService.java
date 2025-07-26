@@ -1,8 +1,8 @@
 package com.userservice.service;
 
-import com.userservice.request.UserRegistrationRequest;
-import com.userservice.request.UserUpdateRequest;
-import com.userservice.response.UserDto;
+import com.userservice.dto.UserDto;
+import com.userservice.dto.UserRegistrationRequest;
+import com.userservice.dto.UserUpdateRequest;
 
 import java.util.UUID;
 
