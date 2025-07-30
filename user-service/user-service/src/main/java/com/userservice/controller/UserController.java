@@ -18,9 +18,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<Void> createUser(@RequestBody UserRegistrationRequest userRegistrationRequest) {
-        userService.register(userRegistrationRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<UUID> createUser(@RequestBody UserRegistrationRequest userRegistrationRequest) {
+        UUID userUuid = userService.register(userRegistrationRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userUuid);
     }
 
     @GetMapping("/{id}")

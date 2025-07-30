@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void register(UserRegistrationRequest userRegistrationRequest) {
+    public UUID register(UserRegistrationRequest userRegistrationRequest) {
         validateUserExistence(userRegistrationRequest);
 
         Address address = addressService.create(userRegistrationRequest.getAddress());
@@ -38,6 +38,8 @@ public class UserServiceImpl implements UserService {
         User user = createUser(userRegistrationRequest, address);
 
         individualService.create(userRegistrationRequest.getIndividual(), user);
+
+        return user.getId();
     }
 
     @Override

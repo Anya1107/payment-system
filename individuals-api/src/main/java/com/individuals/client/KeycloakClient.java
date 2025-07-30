@@ -3,6 +3,7 @@ package com.individuals.client;
 import com.individuals.dto.*;
 import com.individuals.exception.CustomAuthException;
 import com.google.gson.Gson;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,9 +21,7 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static com.individuals.util.Constants.*;
 
@@ -32,14 +31,12 @@ public class KeycloakClient {
     private final String realmName;
     private final String clientId;
     private final String clientSecret;
-    private final ReactiveJwtDecoder jwtDecoder;
 
     public KeycloakClient(
             @Value("${keycloak.url}") String keycloakUrl,
             @Value("${keycloak.realm}") String realmName,
             @Value("${keycloak.client-id}") String clientId,
-            @Value("${keycloak.client-secret}") String clientSecret,
-            ReactiveJwtDecoder jwtDecoder
+            @Value("${keycloak.client-secret}") String clientSecret
     ) {
         this.webClient = WebClient.builder()
                 .baseUrl(keycloakUrl)
@@ -47,7 +44,6 @@ public class KeycloakClient {
         this.realmName = realmName;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
-        this.jwtDecoder = jwtDecoder;
     }
 
     public Mono<TokenResponse> requestToken(String username, String password) {
@@ -69,14 +65,14 @@ public class KeycloakClient {
                 .map(json -> new Gson().fromJson(json, TokenResponse.class));
     }
 
-    public Mono<Void> createUser(String username, String firstName, String lastName, String email, String password) {
+    public Mono<Void> createUser(UUID userUuid, String username, String firstName, String lastName, String email, String password) {
         return requestServiceToken()
                 .flatMap(tokenResponse ->
                         webClient.post()
                                 .uri("/admin/realms/{realm}/users", realmName)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + tokenResponse.getAccessToken())
-                                .bodyValue(getCreateUserBody(username, firstName, lastName, email, password))
+                                .bodyValue(getCreateUserBody(userUuid, username, firstName, lastName, email, password))
                                 .retrieve()
                                 .onStatus(status -> status == HttpStatus.BAD_REQUEST,
                                         response -> handleErrorResponse(response, VALIDATION_ERROR_MESSAGE, HttpStatus.BAD_REQUEST))
@@ -122,39 +118,30 @@ public class KeycloakClient {
                 .map(json -> new Gson().fromJson(json, TokenResponse.class));
     }
 
-    public Mono<UserInfoResponse> fetchUserInfo(String accessToken) {
-        String token = getTokenWithoutPrefix(accessToken);
-
-        return decodeJwt(token)
-                .flatMap(this::extractUserId)
-                .flatMap(userId ->
-                        requestServiceToken()
-                                .flatMap(adminToken ->
-                                        Mono.zip(
-                                                fetchUserProfile(adminToken.getAccessToken(), userId),
-                                                fetchUserRoles(adminToken.getAccessToken(), userId)
-                                        ).map(tuple -> mapToUserInfoResponse(tuple.getT1(), tuple.getT2()))
-                                )
+    public Mono<UserInfoResponse> fetchUserInfo(String userId) {
+        return requestServiceToken()
+                .flatMap(adminToken ->
+                                Mono.zip(
+                                        fetchUserProfile(adminToken.getAccessToken(), userId),
+                                        fetchUserRoles(adminToken.getAccessToken(), userId)
+                                ).map(tuple -> mapToUserInfoResponse(tuple.getT1(), tuple.getT2()))
                 );
     }
 
-    private String getTokenWithoutPrefix(String token) {
-        return token.startsWith(BEARER_PREFIX) ? token.substring(TOKEN_BEGIN_INDEX) : token;
-    }
-
-    private Mono<Jwt> decodeJwt(String token) {
-        return jwtDecoder.decode(token)
-                .onErrorMap(e -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, INVALID_ACCESS_TOKEN_ERROR_MESSAGE, e));
-    }
-
-    private Mono<String> extractUserId(Jwt jwt) {
-        String userId = jwt.getSubject();
-
-        if (userId == null || userId.isEmpty()) {
-            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, TOKEN_WITHOUT_SUBJECT_ERROR_MESSAGE));
-        }
-
-        return Mono.just(userId);
+    public Mono<Void> deleteUser(String userId) {
+        return requestServiceToken()
+                .flatMap(tokenResponse ->
+                        webClient.delete()
+                                .uri("/admin/realms/{realm}/users/{id}", realmName, userId)
+                                .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + tokenResponse.getAccessToken())
+                                .retrieve()
+                                .onStatus(status -> status == HttpStatus.NOT_FOUND,
+                                        response -> handleErrorResponse(response, USER_NOT_FOUND_ERROR_MESSAGE, HttpStatus.NOT_FOUND))
+                                .onStatus(HttpStatusCode::is5xxServerError,
+                                        response -> handleErrorResponse(response, KEYCLOAK_INTERNAL_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR))
+                                .toBodilessEntity()
+                                .then()
+                );
     }
 
     private Mono<KeycloakUserDto> fetchUserProfile(String adminToken, String userId) {
@@ -204,7 +191,10 @@ public class KeycloakClient {
                 });
     }
 
-    private Map<String, Object> getCreateUserBody(String username, String firstName, String lastName, String email, String password) {
+    private Map<String, Object> getCreateUserBody(UUID userUuid, String username, String firstName, String lastName, String email, String password) {
+        Map<String, List<String>> attributes = new HashMap<>();
+        attributes.put(USER_UID_PARAM, Collections.singletonList(userUuid.toString()));
+
         return Map.of(
                 USERNAME_PARAM, username,
                 EMAIL_PARAM, email,
@@ -219,7 +209,8 @@ public class KeycloakClient {
                                 VALUE_PARAM, password,
                                 TEMPORARY_PARAM, false
                         )
-                )
+                ),
+                ATTRIBUTES_PARAM, attributes
         );
     }
 }

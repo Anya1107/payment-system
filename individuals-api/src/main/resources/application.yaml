@@ -15,16 +15,16 @@ spring:
               - email
         provider:
           keycloak:
-            issuer-uri: http://keycloak:8080/realms/myrealm
+            issuer-uri: http://localhost:8080/realms/myrealm
       resourceserver:
         jwt:
-          jwk-set-uri: http://keycloak:8080/realms/myrealm/protocol/openid-connect/certs
+          jwk-set-uri: http://localhost:8080/realms/myrealm/protocol/openid-connect/certs
 
 server:
   port: 8081
 
 keycloak:
-  url: http://keycloak:8080
+  url: http://localhost:8080
   realm: myrealm
   client-id: myclient
   client-secret: myclient-secret
@@ -38,3 +38,7 @@ management:
     metrics:
       export:
         enabled: true
+
+user:
+  service:
+    url: http://localhost:8082

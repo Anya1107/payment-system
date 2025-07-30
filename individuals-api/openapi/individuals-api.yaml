@@ -117,20 +117,62 @@ components:
   schemas:
     UserRegistrationRequest:
       type: object
-      required: [username, first_name, last_name, email, password, confirm_password]
+      required: [ user, address, individual ]
       properties:
+        user:
+          $ref: '#/components/schemas/UserCreateRequest'
+        address:
+          $ref: '#/components/schemas/AddressCreateRequest'
+        individual:
+          $ref: '#/components/schemas/IndividualCreateRequest'
+
+    UserCreateRequest:
+      type: object
+      required: [ id, username, email, firstName, lastName, secretKey, password, confirm_password ]
+      properties:
+        id:
+          type: string
+          format: UUID
+          nullable: true
         username:
-          type: string
-        first_name:
-          type: string
-        last_name:
           type: string
         email:
           type: string
-          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        secretKey:
+          type: string
         password:
           type: string
         confirm_password:
+          type: string
+
+    AddressCreateRequest:
+      type: object
+      required: [ address, zipCode, city, state, countryId ]
+      properties:
+        address:
+          type: string
+        zipCode:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        countryId:
+          type: integer
+
+    IndividualCreateRequest:
+      type: object
+      required: [ passportNumber, phoneNumber, status ]
+      properties:
+        passportNumber:
+          type: string
+        phoneNumber:
+          type: string
+        status:
           type: string
 
     UserLoginRequest:

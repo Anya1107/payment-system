@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface UserService {
 
-    void register(UserRegistrationRequest userRegistrationRequest);
+    UUID register(UserRegistrationRequest userRegistrationRequest);
 
     UserDto getById(UUID id);
 

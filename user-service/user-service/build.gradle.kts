@@ -26,7 +26,6 @@ dependencies {
     implementation("org.postgresql:postgresql:42.6.0")
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.github.openfeign:feign-micrometer:13.6")
     implementation("org.hibernate:hibernate-envers:7.0.7.Final")
     implementation(project(":common-module"))
     compileOnly("org.projectlombok:lombok")

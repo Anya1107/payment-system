@@ -11,6 +11,7 @@ public class Constants {
     public static final String UNEXPECTED_ERROR_MESSAGE = "Unexpected error";
     public static final String TOKEN_WITHOUT_SUBJECT_ERROR_MESSAGE = "Token does not contain subject (sub)";
     public static final String INVALID_CLIENT_CREDENTIALS_ERROR_MESSAGE = "Invalid client credentials";
+    public static final String USER_FAILED_DELETION_ERROR_MESSAGE = "Failed to delete user";
 
     public static final String USERNAME_PARAM = "username";
     public static final String EMAIL_PARAM = "email";
@@ -21,6 +22,8 @@ public class Constants {
     public static final String EMAIL_VERIFIED_PARAM = "emailVerified";
     public static final String REQUIRED_ACTIONS_PARAM = "requiredActions";
     public static final String CREDENTIALS_PARAM = "credentials";
+    public static final String ATTRIBUTES_PARAM = "attributes";
+    public static final String USER_UID_PARAM = "user_uid";
     public static final String TYPE_PARAM = "type";
     public static final String VALUE_PARAM = "value";
     public static final String TEMPORARY_PARAM = "temporary";
@@ -47,4 +50,7 @@ public class Constants {
     public static final String USER_LOGIN_LOG = "Logging in user: {}";
     public static final String USER_LOGIN_SUCCESS_LOG = "User logged in successfully: {}";
     public static final String USER_LOGIN_FAILED_LOG = "Login failed";
+    public static final String USER_DELETION_LOG = "Deletion current user info";
+    public static final String USER_DELETION_SUCCESS_LOG = "Successfully deleted user: {}";
+    public static final String USER_DELETION_FAILED_LOG = "Failed to delete user";
 }
