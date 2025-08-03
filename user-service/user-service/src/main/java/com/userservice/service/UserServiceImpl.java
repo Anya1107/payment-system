@@ -12,6 +12,7 @@ import com.userservice.exception.UserNotFoundException;
 import com.userservice.mapper.UserMapper;
 import com.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ import static com.userservice.util.Constants.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final AddressService addressService;
@@ -31,6 +33,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UUID register(UserRegistrationRequest userRegistrationRequest) {
+        log.info(USER_REGISTRATION_LOG, userRegistrationRequest.getUser().getEmail());
+
         validateUserExistence(userRegistrationRequest);
 
         Address address = addressService.create(userRegistrationRequest.getAddress());
@@ -39,34 +43,52 @@ public class UserServiceImpl implements UserService {
 
         individualService.create(userRegistrationRequest.getIndividual(), user);
 
+        log.info(USER_REGISTRATION_SUCCESS_LOG, user.getEmail());
+
         return user.getId();
     }
 
     @Override
     public UserDto getById(UUID id) {
+        log.info(USER_FETCHING_BY_ID_LOG, id);
+
         return userRepository.findById(id)
                 .map(userMapper::toDto)
-                .orElseThrow(() -> new UserNotFoundException(USER_WITH_ID_NOT_FOUND_ERROR_MESSAGE + id, NOT_FOUND_STATUS_CODE));
+                .orElseThrow(() -> {
+                    log.warn(USER_FETCHING__BY_ID_FAILED_LOG, id);
+                    return new UserNotFoundException(USER_WITH_ID_NOT_FOUND_ERROR_MESSAGE + id, NOT_FOUND_STATUS_CODE);
+                });
     }
 
     @Override
     public UserDto getByEmail(String email) {
+        log.info(USER_FETCHING_BY_EMAIL_LOG, email);
+
         return userRepository.findByEmail(email)
                 .map(userMapper::toDto)
-                .orElseThrow(() -> new UserNotFoundException(USER_WITH_EMAIL_NOT_FOUND_ERROR_MESSAGE + email, NOT_FOUND_STATUS_CODE));
+                .orElseThrow(() -> {
+                    log.warn(USER_FETCHING__BY_EMAIL_FAILED_LOG, email);
+                    return new UserNotFoundException(USER_WITH_EMAIL_NOT_FOUND_ERROR_MESSAGE + email, NOT_FOUND_STATUS_CODE);
+                });
     }
 
     @Override
     @Transactional
     public void delete(UUID id) {
+        log.info(USER_DELETION_LOG, id);
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(USER_WITH_ID_NOT_FOUND_ERROR_MESSAGE + id, NOT_FOUND_STATUS_CODE));
 
         userRepository.delete(user);
+
+        log.info(USER_DELETION_FAILED_LOG, id);
     }
 
     @Override
     public void update(UUID id, UserUpdateRequest userUpdateRequest) {
+        log.info(USER_UPDATE_LOG, id);
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(USER_WITH_ID_NOT_FOUND_ERROR_MESSAGE + id, NOT_FOUND_STATUS_CODE));
 
@@ -75,6 +97,8 @@ public class UserServiceImpl implements UserService {
         fillAddress(userUpdateRequest, user);
 
         userRepository.save(user);
+
+        log.info(USER_UPDATE_FAILED_LOG, id);
     }
 
     private void validateUserExistence(UserRegistrationRequest userRegistrationRequest) {

@@ -2,6 +2,7 @@ package com.individuals.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -16,6 +17,8 @@ public class SecurityConfig {
         http
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/v1/auth/me").authenticated()
+                        .pathMatchers(HttpMethod.PUT, "/v1/auth").authenticated()
+                        .pathMatchers(HttpMethod.DELETE, "/v1/auth").authenticated()
                         .anyExchange().permitAll()
                 )
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)

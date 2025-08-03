@@ -46,12 +46,12 @@ public class AuthController {
     @PutMapping
     public Mono<ResponseEntity<Void>> updateUser(@RequestHeader(AUTHORIZATION) String accessToken, @RequestBody UserUpdateRequest userUpdateRequest) {
         return userOrchestrator.updateUser(accessToken, userUpdateRequest)
-                .map(ignored -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+                .thenReturn(ResponseEntity.noContent().build());
     }
 
     @DeleteMapping
     public Mono<ResponseEntity<Void>> deleteUser(@RequestHeader(AUTHORIZATION) String accessToken) {
         return userOrchestrator.deleteUser(accessToken)
-                .map(ignored  -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+                .thenReturn(ResponseEntity.noContent().build());
     }
 }

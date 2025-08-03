@@ -12,8 +12,8 @@ import com.userservice.dto.UserUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.UUID;
 
@@ -26,51 +26,46 @@ public class UserOrchestrator {
     private final UserServiceClient userServiceClient;
     private final UserService userService;
 
-    @Transactional
     public Mono<TokenResponse> registerUser(UserRegistrationRequest request) {
         return Mono.fromCallable(() -> userServiceClient.createUser(mapToUserRequest(request)))
+                .subscribeOn(Schedulers.boundedElastic())
                 .flatMap(userUuid -> {
                     request.getUser().setId(userUuid);
-                    return userService.register(request);
-                })
-                .onErrorResume(CustomAuthException.class, ex -> {
-                    return deleteDbUser(request, ex);
+                    return userService.register(request)
+                            .onErrorResume(CustomAuthException.class, ex -> deleteDbUser(request, ex));
                 });
     }
 
     public Mono<UserInfoResponse> getUserInfo(String accessToken) {
         return userService.extractUserId(accessToken)
-                .flatMap(userId ->
-                        Mono.fromCallable(() ->
-                                userServiceClient.getUserById(UUID.fromString(userId))
-                        )
-                )
-                .flatMap(user -> userService.getCurrentUser(user.getId().toString()))
-                .onErrorResume(Mono::error);
+                .flatMap(userIds ->
+                        Mono.fromCallable(() -> userServiceClient.getUserById(UUID.fromString(userIds.getSecond())))
+                                .subscribeOn(Schedulers.boundedElastic())
+                                .flatMap(user -> userService.getCurrentUser(userIds.getFirst()))
+                );
     }
 
-    @Transactional
-    public Mono<Object> updateUser(String accessToken, UserUpdateRequest userUpdateRequest) {
+    public Mono<Void> updateUser(String accessToken, UserUpdateRequest userUpdateRequest) {
         return userService.extractUserId(accessToken)
-                .flatMap(userId ->
+                .flatMap(userIds ->
                         Mono.fromRunnable(() ->
-                                userServiceClient.updateUser(UUID.fromString(userId), userUpdateRequest)
-                        )
-                )
-                .onErrorResume(Mono::error);
+                                        userServiceClient.updateUser(UUID.fromString(userIds.getSecond()), userUpdateRequest)
+                                )
+                                .subscribeOn(Schedulers.boundedElastic())
+                                .then()
+                );
     }
 
-    @Transactional
-    public Mono<Object> deleteUser(String accessToken) {
+    public Mono<Void> deleteUser(String accessToken) {
         return userService.extractUserId(accessToken)
-                .flatMap(userId ->
-                        Mono.fromRunnable(() -> userServiceClient.deleteUser(UUID.fromString(userId)))
-                                .then(userService.deleteUser(userId))
-                                .thenReturn(new Object())
-                )
-                .onErrorResume(Mono::error);
+                .flatMap(userIds ->
+                        Mono.fromRunnable(() ->
+                                        userServiceClient.deleteUser(UUID.fromString(userIds.getSecond()))
+                                )
+                                .subscribeOn(Schedulers.boundedElastic())
+                                .then(userService.deleteUser(userIds.getFirst()))
+                );
     }
-
 
     private Mono<TokenResponse> deleteDbUser(UserRegistrationRequest request, CustomAuthException ex) {
         return Mono.fromRunnable(() -> {

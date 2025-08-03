@@ -146,7 +146,7 @@ services:
       start_period: 60s
 
   user-service:
-    build: ./user-service
+    build: ./user-service/user-service
     container_name: user-service
     ports:
       - "8082:8082"
@@ -158,6 +158,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
 
 volumes:
   pgdata:

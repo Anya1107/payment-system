@@ -12,3 +12,13 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  prometheus:
+    metrics:
+      export:
+        enabled: true

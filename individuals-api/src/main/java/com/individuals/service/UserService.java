@@ -2,6 +2,7 @@ package com.individuals.service;
 
 import com.individuals.client.KeycloakClient;
 import com.individuals.dto.*;
+import kotlin.Pair;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,11 +65,11 @@ public class UserService {
                 .doOnError(e -> LOG.error(USER_LOGIN_FAILED_LOG, e));
     }
 
-    public Mono<String> extractUserId(String accessToken) {
+    public Mono<Pair<String, String>> extractUserId(String accessToken) {
         String token = getTokenWithoutPrefix(accessToken);
 
         return decodeJwt(token)
-                .flatMap(this::getUserId);
+                .flatMap(this::getUserIds);
     }
 
     private String getTokenWithoutPrefix(String token) {
@@ -80,13 +81,15 @@ public class UserService {
                 .onErrorMap(e -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, INVALID_ACCESS_TOKEN_ERROR_MESSAGE, e));
     }
 
-    private Mono<String> getUserId(Jwt jwt) {
-        String userId = jwt.getSubject();
+    private Mono<Pair<String, String>> getUserIds(Jwt jwt) {
+        String keycloakUserId = jwt.getSubject();
 
-        if (userId == null || userId.isEmpty()) {
+        String attributeUserId = (String) jwt.getClaims().get("user_uid");
+
+        if (keycloakUserId == null || keycloakUserId.isEmpty()) {
             return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, TOKEN_WITHOUT_SUBJECT_ERROR_MESSAGE));
         }
 
-        return Mono.just(userId);
+        return Mono.just(new Pair<>(keycloakUserId, attributeUserId));
     }
 }
