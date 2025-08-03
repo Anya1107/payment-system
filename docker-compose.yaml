@@ -153,6 +153,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      prometheus:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8082/actuator/health" ]
       interval: 10s
@@ -162,6 +166,16 @@ services:
       driver: loki
       options:
         loki-url: "http://loki:3100/loki/api/v1/push"
+
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    ports:
+      - "3200:3200"
+      - "9411:9411"
+    command: -config.file=/etc/infrastructure/tempo.yaml
+    volumes:
+      - ./infrastructure/tempo/tempo.yaml:/etc/infrastructure/tempo.yaml
 
 volumes:
   pgdata:
