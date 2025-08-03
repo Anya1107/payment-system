@@ -230,6 +230,19 @@ end
 
 ---
 
+## Features
+
+- Full CRUD for User, Address, and Individual entities
+- Transactional user registration with embedded entities
+- Integration with Keycloak for auth & identity
+- OpenAPI documentation
+- Metrics via Prometheus
+- Distributed tracing via Grafana Tempo
+- Containerized with Docker
+- Centralized logging to Grafana Loki
+
+---
+
 ## Tech Stack
 
 - Java 24
@@ -241,3 +254,89 @@ end
 - Spring Actuator, Prometheus, Grafana
 
 ---
+
+## Build the project
+
+```
+./gradlew clean build
+```
+
+---
+
+## Run locally
+
+To run the entire system locally including Keycloak, Grafana, Loki, and Prometheus:
+
+```
+docker-compose up --build
+```
+
+Then access:
+
+- User service: http://localhost:8082
+- Grafana: http://localhost:3000
+- Prometheus: http://localhost:9090
+- Loki API: http://localhost:3100
+- Tempo API: http://localhost:3200
+
+---
+
+## Configuration
+
+Configuration is managed via application.yml in the resources folder.
+
+For Flyway migrations, see user-service/src/main/resources/db/migration.
+
+---
+
+## Database migrations (Flyway)
+
+- Migration files follow the pattern: V<version>__<description>.sql (e.g., V1__init.sql).
+- Flyway automatically applies new migrations on application startup.
+- To run migrations manually, use Maven (mvn flyway:migrate) or Gradle (gradle flywayMigrate), if configured.
+
+---
+
+## API Documentation
+
+The OpenAPI spec is located at:
+
+```
+user-service/openapi/user-service.yaml
+```
+
+---
+
+## Observability
+
+Metrics and logs are integrated:
+
+- Prometheus scrapes metrics from /actuator/prometheus
+- Loki ingests logs from the app (via JSON console appender)
+- Grafana visualizes both logs and metrics via provisioned dashboards
+
+---
+
+## Testing
+
+Run all tests:
+
+```
+./gradlew test
+```
+
+--- 
+
+## Deployment
+
+The app is containerized. To build the Docker image:
+
+```
+docker build -t user-service .
+```
+
+Run it manually:
+
+```
+docker run -p 8082:8082 user-service
+```
