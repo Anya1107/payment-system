@@ -1,6 +1,7 @@
 package com.userservice.handler;
 
 import com.individuals.dto.ErrorResponse;
+import com.userservice.exception.CountryNotFoundException;
 import com.userservice.exception.UserAlreadyExistsException;
 import com.userservice.exception.UserNotFoundException;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
+        return buildErrorResponse(ex.toErrorResponse());
+    }
+
+    @ExceptionHandler(CountryNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCountryNotFoundException(CountryNotFoundException ex) {
         return buildErrorResponse(ex.toErrorResponse());
     }
 

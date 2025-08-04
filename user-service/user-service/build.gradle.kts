@@ -1,3 +1,10 @@
+val flywayCoreVersion: String by project
+val postgresqlVersion: String by project
+val mapstructVersion: String by project
+val hibernateEnversVersion: String by project
+val mapstructProcessorVersion: String by project
+val junitBomVersion: String by project
+
 plugins {
     id("java")
     id("org.springframework.boot") version "3.5.0"
@@ -24,11 +31,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("org.flywaydb:flyway-core:9.16.1")
-    implementation("org.postgresql:postgresql:42.6.0")
-    implementation("org.mapstruct:mapstruct:1.5.5.Final")
+    implementation("org.flywaydb:flyway-core:$flywayCoreVersion")
+    implementation("org.postgresql:postgresql:$postgresqlVersion")
+    implementation("org.mapstruct:mapstruct:$mapstructVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.hibernate:hibernate-envers:7.0.7.Final")
+    implementation("org.hibernate:hibernate-envers:$hibernateEnversVersion")
     implementation(project(":common-module"))
     implementation("io.micrometer:micrometer-tracing-bridge-brave")
     implementation("io.micrometer:micrometer-tracing")
@@ -36,8 +43,8 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("org.postgresql:postgresql")
     annotationProcessor("org.projectlombok:lombok")
-    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructProcessorVersion")
+    testImplementation(platform("org.junit:junit-bom:$junitBomVersion"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.junit.jupiter:junit-jupiter")

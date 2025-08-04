@@ -159,11 +159,4 @@ public class UserServiceTest {
 
         assertThrows(UserNotFoundException.class, () -> userService.update(userId, updateRequest));
     }
-
-
-
-
-
-
-
 }

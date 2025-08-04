@@ -15,6 +15,7 @@ public class IndividualServiceImpl implements IndividualService {
     @Override
     public Individual create(IndividualCreateRequest individualCreateRequest, User user) {
         Individual individual = new Individual();
+
         individual.setUser(user);
         individual.setPassportNumber(individualCreateRequest.getPassportNumber());
         individual.setPhoneNumber(individualCreateRequest.getPhoneNumber());
