@@ -53,6 +53,10 @@ scmVersion {
     versionIncrementer("incrementPatch")
 }
 
+tasks.named("currentVersion") {
+    doNotTrackState("Axion plugin accesses .git directory directly, which is unsupported for tracked state in Gradle 8+.")
+}
+
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
