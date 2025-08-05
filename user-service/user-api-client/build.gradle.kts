@@ -1,17 +1,18 @@
 val openFeignVersion: String by project
 val nexusUsername: String by project
 val nexusPassword: String by project
+val versionFile = file("version.txt")
+val currentVersion = versionFile.readText().trim()
 
 plugins {
     id("java")
     id("maven-publish")
     id("org.openapi.generator") version "7.6.0"
     id("io.spring.dependency-management") version "1.1.4"
-    id("pl.allegro.tech.build.axion-release") version "1.14.3"
 }
 
 group = "com.example.clients"
-version = "1.0.0"
+version = currentVersion
 
 repositories {
     mavenCentral()
@@ -42,19 +43,25 @@ openApiGenerate {
     )
 }
 
+fun incrementPatch(version: String): String {
+    val parts = version.split(".").map { it.toInt() }.toMutableList()
+    if (parts.size != 3) throw IllegalArgumentException("Version must have format MAJOR.MINOR.PATCH")
+    parts[2] += 1
+    return parts.joinToString(".")
+}
+
+tasks.register("bumpVersion") {
+    group = "versioning"
+    description = "Increments the PATCH version in version.txt"
+
+    doLast {
+        val newVersion = incrementPatch(currentVersion)
+        versionFile.writeText(newVersion)
+    }
+}
+
 tasks.named("compileJava") {
     dependsOn("openApiGenerate")
-}
-
-scmVersion {
-    tag {
-        prefix.set("")
-    }
-    versionIncrementer("incrementPatch")
-}
-
-tasks.named("currentVersion") {
-    doNotTrackState("Axion plugin accesses .git directory directly, which is unsupported for tracked state in Gradle 8+.")
 }
 
 publishing {
@@ -64,7 +71,7 @@ publishing {
 
             groupId = "com.feign.clients"
             artifactId = "user-api-client"
-            version = scmVersion.version
+            version = project.version.toString()
         }
     }
 
