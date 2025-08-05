@@ -28,32 +28,21 @@ repositories {
 
 val generateIndividualsApiDtos by tasks.registering(org.openapitools.generator.gradle.plugin.tasks.GenerateTask::class) {
     generatorName.set("java")
-    inputSpec.set("${rootDir}/individuals-api/openapi/individuals-api.yaml")
+    inputSpec.set("${rootDir}/individuals-api/individuals-dto/openapi/individuals-api.yaml")
     outputDir.set(project.layout.buildDirectory.dir("generated-sources/individuals").get().asFile.absolutePath)
     apiPackage.set("com.individuals.api")
     modelPackage.set("com.individuals.dto")
     additionalProperties.put("useJakartaEe", "true")
 }
 
-val generateUserServiceDtos by tasks.registering(org.openapitools.generator.gradle.plugin.tasks.GenerateTask::class) {
-    generatorName.set("java")
-    inputSpec.set("${rootDir}/user-service/openapi/user-service.yaml")
-    outputDir.set(project.layout.buildDirectory.dir("generated-sources/userservice").get().asFile.absolutePath)
-    apiPackage.set("com.userservice.api")
-    modelPackage.set("com.userservice.dto")
-    additionalProperties.put("useJakartaEe", "true")
-}
-
 tasks.named("compileJava") {
     dependsOn(generateIndividualsApiDtos)
-    dependsOn(generateUserServiceDtos)
 }
 
 sourceSets {
     main {
         java {
             srcDir(project.layout.buildDirectory.dir("/generated-sources/individuals/src/main/java"))
-            srcDir(project.layout.buildDirectory.dir("/generated-sources/userservice/src/main/java"))
         }
     }
 }

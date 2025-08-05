@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/individuals-api" />
             <option value="$PROJECT_DIR$/user-service" />
             <option value="$PROJECT_DIR$/user-service/user-api-client" />
+            <option value="$PROJECT_DIR$/user-service/user-dto" />
             <option value="$PROJECT_DIR$/user-service/user-service" />
           </set>
         </option>

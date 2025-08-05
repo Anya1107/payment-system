@@ -36,7 +36,7 @@ dependencies {
     implementation("org.mapstruct:mapstruct:$mapstructVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.hibernate:hibernate-envers:$hibernateEnversVersion")
-    implementation(project(":common-module"))
+    implementation(project(":user-service:user-dto"))
     implementation("io.micrometer:micrometer-tracing-bridge-brave")
     implementation("io.micrometer:micrometer-tracing")
     implementation("io.zipkin.reporter2:zipkin-reporter-brave")

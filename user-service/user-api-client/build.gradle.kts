@@ -5,6 +5,7 @@ val nexusPassword: String by project
 plugins {
     id("java")
     id("maven-publish")
+    id("org.openapi.generator") version "7.6.0"
     id("io.spring.dependency-management") version "1.1.4"
 }
 
@@ -17,7 +18,31 @@ repositories {
 
 dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:$openFeignVersion")
-    implementation(project(":common-module"))
+}
+
+openApiGenerate {
+    generatorName.set("java")
+    inputSpec.set("$rootDir/user-service/user-api-client/openapi/user-api.yaml")
+    outputDir.set(project.layout.buildDirectory.dir("generated-sources/userclient").get().asFile.absolutePath)
+    apiPackage.set("com.client.api")
+    modelPackage.set("com.client.model")
+    invokerPackage.set("com.client.invoker")
+
+    configOptions.set(
+        mapOf(
+            "library" to "feign",
+            "springCloudFeignClient" to "true",
+            "interfaceOnly" to "true",
+            "dateLibrary" to "java8",
+            "useSpringBoot3" to "true",
+            "useBeanValidation" to "true",
+            "serializationLibrary" to "jackson"
+        )
+    )
+}
+
+tasks.named("compileJava") {
+    dependsOn("openApiGenerate")
 }
 
 publishing {
@@ -27,7 +52,7 @@ publishing {
 
             groupId = "com.feign.clients"
             artifactId = "user-api-client"
-            version = "1.0.3"
+            version = "1.0.4"
         }
     }
 

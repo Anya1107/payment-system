@@ -9,6 +9,7 @@ import com.userservice.exception.UserAlreadyExistsException;
 import com.userservice.exception.UserNotFoundException;
 import com.userservice.mapper.UserMapper;
 import com.userservice.repository.UserRepository;
+import com.userservice.util.TestDataCreator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.userservice.controller.UserControllerIntegrationTest.buildValidRequest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -49,7 +49,7 @@ public class UserServiceTest {
         Address address = new Address();
         User user = new User();
 
-        UserRegistrationRequest request = buildValidRequest("user@example.com");
+        UserRegistrationRequest request = TestDataCreator.buildRegistrationRequest("user@example.com");
 
         when(userRepository.existsByEmail(request.getUser().getEmail())).thenReturn(false);
         when(addressService.create(request.getAddress())).thenReturn(address);
@@ -62,7 +62,7 @@ public class UserServiceTest {
 
     @Test
     void registrationFail_existingUser_returnConflict() {
-        UserRegistrationRequest request = buildValidRequest("user@example.com");
+        UserRegistrationRequest request = TestDataCreator.buildRegistrationRequest("user@example.com");
 
         when(userRepository.existsByEmail(request.getUser().getEmail())).thenReturn(true);
 
