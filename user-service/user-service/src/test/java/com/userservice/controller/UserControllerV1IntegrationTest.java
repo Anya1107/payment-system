@@ -42,7 +42,7 @@ public class UserControllerV1IntegrationTest {
 
         mockMvc.perform(get("/api/v1/user")
                         .param("email", email))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.email").value(email))
                 .andExpect(jsonPath("$.firstName").value("firstName"));
     }
@@ -55,7 +55,7 @@ public class UserControllerV1IntegrationTest {
         mockMvc.perform(post("/api/v1/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isConflict());
 
         mockMvc.perform(post("/api/v1/user")
                         .contentType(MediaType.APPLICATION_JSON)
