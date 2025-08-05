@@ -1,6 +1,6 @@
 package com.userservice.exception;
 
-import com.individuals.dto.ErrorResponse;
+import com.userservice.dto.ErrorResponse;
 import lombok.Getter;
 
 @Getter

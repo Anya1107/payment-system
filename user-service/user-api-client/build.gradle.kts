@@ -1,6 +1,19 @@
 val openFeignVersion: String by project
 val nexusUsername: String by project
 val nexusPassword: String by project
+val gsonVersion: String by project
+val okhttp3Version: String by project
+val loggingInterceptorVersion: String by project
+val jakartaVersion: String by project
+val gsonFireVersion: String by project
+val jacksonDatabindVersion: String by project
+val openFeignOkhttpVersion: String by project
+val jacksonDatabindNullableVersion: String by project
+val jacksonDatatypeJsrVersion: String by project
+val openfeignJacksonVersion: String by project
+val javaxAnnotationApiVersion: String by project
+val jakartaAnnotationApiVersion: String by project
+val jakartaValidationApi: String by project
 val versionFile = file("version.txt")
 val currentVersion = versionFile.readText().trim()
 
@@ -14,12 +27,33 @@ plugins {
 group = "com.example.clients"
 version = currentVersion
 
+sourceSets {
+    main {
+        java {
+            srcDir(project.layout.buildDirectory.dir("generated-sources/userclient/src/main/java"))
+        }
+    }
+}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:$openFeignVersion")
+    implementation("io.github.openfeign:feign-okhttp:$openFeignOkhttpVersion")
+    implementation("com.google.code.gson:gson:$gsonVersion")
+    implementation("com.squareup.okhttp3:okhttp:$okhttp3Version")
+    implementation("com.squareup.okhttp3:logging-interceptor:$loggingInterceptorVersion")
+    implementation("jakarta.annotation:jakarta.annotation-api:$jakartaVersion")
+    implementation("io.gsonfire:gson-fire:$gsonFireVersion")
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion")
+    implementation("org.openapitools:jackson-databind-nullable:$jacksonDatabindNullableVersion")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDatatypeJsrVersion")
+    implementation("io.github.openfeign:feign-jackson:$openfeignJacksonVersion")
+    implementation("javax.annotation:javax.annotation-api:$javaxAnnotationApiVersion")
+    implementation("jakarta.annotation:jakarta.annotation-api:$jakartaAnnotationApiVersion")
+    implementation("jakarta.validation:jakarta.validation-api:$jakartaValidationApi")
 }
 
 openApiGenerate {
@@ -32,13 +66,16 @@ openApiGenerate {
 
     configOptions.set(
         mapOf(
+            "useJakartaEe" to "true",
             "library" to "feign",
             "springCloudFeignClient" to "true",
             "interfaceOnly" to "true",
             "dateLibrary" to "java8",
             "useSpringBoot3" to "true",
             "useBeanValidation" to "true",
-            "serializationLibrary" to "jackson"
+            "serializationLibrary" to "jackson",
+            "feignClientName" to "user-api",
+            "feignClientUrl" to "http://localhost:8082"
         )
     )
 }

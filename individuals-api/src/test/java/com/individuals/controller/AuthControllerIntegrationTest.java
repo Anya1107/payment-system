@@ -1,7 +1,7 @@
 package com.individuals.controller;
 
-import com.feign.client.UserServiceClient;
 import com.individuals.dto.*;
+import com.individuals.feign.UserServiceClient;
 import com.individuals.service.UserService;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import feign.FeignException;

@@ -1,14 +1,14 @@
 package com.individuals.service;
 
-import com.feign.client.UserServiceClient;
 import com.individuals.dto.TokenResponse;
 import com.individuals.dto.UserInfoResponse;
 import com.individuals.dto.UserRegistrationRequest;
 import com.individuals.exception.CustomAuthException;
-import com.userservice.dto.AddressCreateRequest;
-import com.userservice.dto.IndividualCreateRequest;
-import com.userservice.dto.UserCreateRequest;
-import com.userservice.dto.UserUpdateRequest;
+import com.client.model.AddressCreateRequest;
+import com.client.model.IndividualCreateRequest;
+import com.client.model.UserCreateRequest;
+import com.client.model.UserUpdateRequest;
+import com.individuals.feign.UserServiceClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class UserOrchestrator {
                 .flatMap(userUuid -> {
                     request.getUser().setId(userUuid);
                     return userService.register(request)
-                            .onErrorResume(CustomAuthException.class, ex -> deleteDbUser(request, ex));
+                            .onErrorResume(CustomAuthException.class, ex -> compensateUserCreation(request, ex));
                 });
     }
 
@@ -67,18 +67,18 @@ public class UserOrchestrator {
                 );
     }
 
-    private Mono<TokenResponse> deleteDbUser(UserRegistrationRequest request, CustomAuthException ex) {
+    private Mono<TokenResponse> compensateUserCreation(UserRegistrationRequest request, CustomAuthException ex) {
         return Mono.fromRunnable(() -> {
             try {
-                userServiceClient.deleteUser(request.getUser().getId());
+                userServiceClient.compensateUserCreation(request.getUser().getId());
             } catch (Exception e) {
                 log.error(USER_FAILED_DELETION_ERROR_MESSAGE);
             }
         }).then(Mono.error(ex));
     }
 
-    private com.userservice.dto.UserRegistrationRequest mapToUserRequest(UserRegistrationRequest request) {
-        return new com.userservice.dto.UserRegistrationRequest()
+    private com.client.model.UserRegistrationRequest mapToUserRequest(UserRegistrationRequest request) {
+        return new com.client.model.UserRegistrationRequest()
                 .user(
                         new UserCreateRequest()
                                 .email(request.getUser().getEmail())

@@ -44,4 +44,10 @@ public class UserControllerV1 {
         userService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @DeleteMapping("/{id}/compensate")
+    public ResponseEntity<Void> compensateUserCreation(@PathVariable UUID id) {
+        userService.delete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

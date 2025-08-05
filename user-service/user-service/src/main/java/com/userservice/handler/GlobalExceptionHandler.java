@@ -1,6 +1,6 @@
 package com.userservice.handler;
 
-import com.individuals.dto.ErrorResponse;
+import com.userservice.dto.ErrorResponse;
 import com.userservice.exception.CountryNotFoundException;
 import com.userservice.exception.UserAlreadyExistsException;
 import com.userservice.exception.UserNotFoundException;

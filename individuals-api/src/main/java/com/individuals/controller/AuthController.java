@@ -1,9 +1,9 @@
 package com.individuals.controller;
 
+import com.client.model.UserUpdateRequest;
 import com.individuals.dto.*;
 import com.individuals.service.UserOrchestrator;
 import com.individuals.service.UserService;
-import com.userservice.dto.UserUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
