@@ -7,6 +7,7 @@ plugins {
     id("maven-publish")
     id("org.openapi.generator") version "7.6.0"
     id("io.spring.dependency-management") version "1.1.4"
+    id("pl.allegro.tech.build.axion-release") version "1.14.3"
 }
 
 group = "com.example.clients"
@@ -45,6 +46,13 @@ tasks.named("compileJava") {
     dependsOn("openApiGenerate")
 }
 
+scmVersion {
+    tag {
+        prefix.set("")
+    }
+    versionIncrementer("incrementPatch")
+}
+
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
@@ -52,7 +60,7 @@ publishing {
 
             groupId = "com.feign.clients"
             artifactId = "user-api-client"
-            version = "1.0.4"
+            version = scmVersion.version
         }
     }
 
