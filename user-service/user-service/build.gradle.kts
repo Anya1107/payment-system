@@ -4,6 +4,8 @@ val mapstructVersion: String by project
 val hibernateEnversVersion: String by project
 val mapstructProcessorVersion: String by project
 val junitBomVersion: String by project
+val opentelemetrySpringBootVersion: String by project
+val logbackEncoderVersion: String by project
 
 plugins {
     id("java")
@@ -37,9 +39,9 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.hibernate:hibernate-envers:$hibernateEnversVersion")
     implementation(project(":user-service:user-dto"))
-    implementation("io.micrometer:micrometer-tracing-bridge-brave")
-    implementation("io.micrometer:micrometer-tracing")
-    implementation("io.zipkin.reporter2:zipkin-reporter-brave")
+    implementation("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
+    implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:$opentelemetrySpringBootVersion")
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("org.postgresql:postgresql")
     annotationProcessor("org.projectlombok:lombok")

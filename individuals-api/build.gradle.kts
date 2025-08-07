@@ -10,6 +10,7 @@ val keycloakTestContainerVersion: String by project
 val nexusUsername: String by project
 val nexusPassword: String by project
 val openFeignVersion: String by project
+val opentelemetrySpringBootVersion: String by project
 
 plugins {
     id("java")
@@ -29,7 +30,7 @@ java {
 }
 
 application {
-    mainClass.set("com.example.IndividualsApplication")
+    mainClass.set("com.individuals.IndividualsApplication")
 }
 
 repositories {
@@ -63,9 +64,8 @@ dependencies {
     implementation(project(":individuals-api:individuals-dto"))
     implementation("com.feign.clients:user-api-client:1.0.13")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:$openFeignVersion")
-    implementation("io.micrometer:micrometer-tracing-bridge-brave")
-    implementation("io.micrometer:micrometer-tracing")
-    implementation("io.zipkin.reporter2:zipkin-reporter-brave")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
+    implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:$opentelemetrySpringBootVersion")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation(platform("org.junit:junit-bom:$junitBomVersion"))

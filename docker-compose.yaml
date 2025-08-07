@@ -82,15 +82,20 @@ services:
         condition: service_healthy
       loki:
         condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      OTEL_SERVICE_NAME: event-consumer
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://alloy:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: none
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_LOGS_EXPORTER: none
+      OTEL_RESOURCE_ATTRIBUTES: service.version=1.0.0,deployment.environment=docker
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
       interval: 10s
       timeout: 5s
       retries: 5
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://loki:3100/loki/api/v1/push"
 
   grafana:
     image: grafana/grafana:10.3.1
@@ -150,6 +155,15 @@ services:
     container_name: user-service
     ports:
       - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      OTEL_SERVICE_NAME: event-consumer
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://alloy:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: none
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_LOGS_EXPORTER: none
+      OTEL_RESOURCE_ATTRIBUTES: service.version=1.0.0,deployment.environment=docker
     depends_on:
       postgres:
         condition: service_healthy
@@ -162,22 +176,40 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://loki:3100/loki/api/v1/push"
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    user: root
+    ports:
+      - "9080:9080"
+      - "4317:4317"
+      - "4318:4318"
+    volumes:
+      - ./infrastructure/alloy/config.alloy:/etc/infrastructure/alloy/config.alloy:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/log:/var/log:ro
+    environment:
+      GRAFANA_LOKI_URL: http://loki:3100/loki/api/v1/push
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:9080
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
 
   tempo:
-    image: grafana/tempo:latest
+    image: grafana/tempo:2.4.1
     container_name: tempo
+    command: [ "-config.file=/etc/infrastructure/tempo/tempo.yaml" ]
+    volumes:
+      - ./infrastructure/tempo/tempo.yaml:/etc/infrastructure/tempo/tempo.yaml
+      - tempo_data:/var/tempo
     ports:
       - "3200:3200"
-      - "9411:9411"
-    command: -config.file=/etc/infrastructure/tempo.yaml
-    volumes:
-      - ./infrastructure/tempo/tempo.yaml:/etc/infrastructure/tempo.yaml
 
 volumes:
   pgdata:
   nexus-data:
+  tempo_data:
 

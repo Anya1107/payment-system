@@ -16,11 +16,12 @@ spring:
 
 management:
   tracing:
+    enabled: true
     sampling:
       probability: 1.0
-    zipkin:
-      tracing:
-        endpoint: http://tempo:9411/api/v2/spans
+    otlp:
+      endpoint: http://alloy:4318
+      protocol: http/protobuf
   endpoints:
     web:
       exposure:

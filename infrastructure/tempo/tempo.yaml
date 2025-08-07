@@ -3,17 +3,20 @@ server:
 
 distributor:
   receivers:
-    zipkin:
-      endpoint: "0.0.0.0:9411"
+    otlp:
+      protocols:
+        grpc:
+        http:
 
 ingester:
   trace_idle_period: 10s
-  max_block_duration: 5m
+
+compactor:
+  compaction:
+    compacted_block_retention: 48h
 
 storage:
   trace:
     backend: local
     local:
-      path: /tmp/tempo/traces
-    wal:
-      path: /tmp/tempo/wal
+      path: /var/tempo/traces

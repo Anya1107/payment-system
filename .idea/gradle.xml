@@ -9,8 +9,8 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/common-module" />
             <option value="$PROJECT_DIR$/individuals-api" />
+            <option value="$PROJECT_DIR$/individuals-api/individuals-dto" />
             <option value="$PROJECT_DIR$/user-service" />
             <option value="$PROJECT_DIR$/user-service/user-api-client" />
             <option value="$PROJECT_DIR$/user-service/user-dto" />
