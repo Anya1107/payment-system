@@ -7,6 +7,10 @@ val gsonFireVersion: String by project
 val logbackAppenderVersion: String by project
 val junitBomVersion: String by project
 val keycloakTestContainerVersion: String by project
+val nexusUsername: String by project
+val nexusPassword: String by project
+val openFeignVersion: String by project
+val opentelemetrySpringBootVersion: String by project
 
 plugins {
     id("java")
@@ -26,11 +30,19 @@ java {
 }
 
 application {
-    mainClass.set("com.example.IndividualsApplication")
+    mainClass.set("com.individuals.IndividualsApplication")
 }
 
 repositories {
     mavenCentral()
+    maven {
+        isAllowInsecureProtocol = true
+        url = uri("http://localhost:8085/repository/maven-releases/")
+        credentials {
+            username = nexusUsername
+            password = nexusPassword
+        }
+    }
 }
 
 dependencies {
@@ -40,6 +52,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-logging")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.security:spring-security-oauth2-client")
+    implementation("org.springframework:spring-tx")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
     implementation("com.google.code.gson:gson:$gsonVersion")
@@ -48,6 +61,11 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:$loggingInterceptorVersion")
     implementation("io.gsonfire:gson-fire:1.8.5")
     implementation("com.github.loki4j:loki-logback-appender:$logbackAppenderVersion")
+    implementation(project(":individuals-api:individuals-dto"))
+    implementation("com.feign.clients:user-api-client:1.0.13")
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign:$openFeignVersion")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
+    implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:$opentelemetrySpringBootVersion")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation(platform("org.junit:junit-bom:$junitBomVersion"))
@@ -60,21 +78,6 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux")
     testImplementation ("com.github.dasniko:testcontainers-keycloak:$keycloakTestContainerVersion")
-}
-
-openApiGenerate {
-    generatorName.set("java")
-    inputSpec.set("$rootDir/individuals-api/openapi/individuals-api.yaml")
-    outputDir.set(project.layout.buildDirectory.dir("generated-sources/openapi").get().asFile.absolutePath)
-    apiPackage.set("com.individuals.api")
-    modelPackage.set("com.individuals.dto")
-    additionalProperties.put("useJakartaEe", "true")
-}
-
-sourceSets {
-    getByName("main") {
-        java.srcDir("$buildDir/generated-sources/openapi/src/main/java")
-    }
 }
 
 tasks.test {

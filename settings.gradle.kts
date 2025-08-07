@@ -1,5 +1,11 @@
 rootProject.name = "payment-system"
-include("src:main:individuals-api")
-findProject(":src:main:individuals-api")?.name = "individuals-api"
+
 include("individuals-api")
 include("user-service")
+
+include("user-service:user-api-client")
+include("user-service:user-service")
+include("user-service:user-dto")
+findProject(":user-service:user-dto")?.name = "user-dto"
+include("individuals-api:individuals-dto")
+findProject(":individuals-api:individuals-dto")?.name = "individuals-dto"

@@ -1,0 +1,273 @@
+openapi: 3.0.0
+info:
+  title: User service
+  description: Service for managing users and their related entities (address, personal data).
+  version: 1.0.0
+
+paths:
+  /api/v1/user:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+      responses:
+        '201':
+          description: User successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      summary: Get user by email
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/user/{id}:
+    get:
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      summary: Update user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '204':
+          description: User successfully updated
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Delete user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User successfully deleted
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 404
+        error:
+          type: string
+          example: User not found
+
+    UserRegistrationRequest:
+      type: object
+      required: [user, address, individual]
+      properties:
+        user:
+          $ref: '#/components/schemas/UserCreateRequest'
+        address:
+          $ref: '#/components/schemas/AddressCreateRequest'
+        individual:
+          $ref: '#/components/schemas/IndividualCreateRequest'
+
+    UserCreateRequest:
+      type: object
+      required: [email, firstName, lastName, secretKey]
+      properties:
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        secretKey:
+          type: string
+
+    AddressCreateRequest:
+      type: object
+      required: [address, zipCode, city, state, countryId]
+      properties:
+        address:
+          type: string
+        zipCode:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        countryId:
+          type: integer
+
+    IndividualCreateRequest:
+      type: object
+      required: [passportNumber, phoneNumber, status]
+      properties:
+        passportNumber:
+          type: string
+        phoneNumber:
+          type: string
+        status:
+          type: string
+
+    UserUpdateRequest:
+      type: object
+      required: [email, firstName, lastName]
+      properties:
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        filled:
+          type: boolean
+        individual:
+          $ref: '#/components/schemas/IndividualUpdateRequest'
+        address:
+          $ref: '#/components/schemas/AddressUpdateRequest'
+
+    AddressUpdateRequest:
+      type: object
+      required: [address, zipCode, city, state, countryId]
+      properties:
+        address:
+          type: string
+        zipCode:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        countryId:
+          type: integer
+
+    IndividualUpdateRequest:
+      type: object
+      required: [passportNumber, phoneNumber, status]
+      properties:
+        passportNumber:
+          type: string
+        phoneNumber:
+          type: string
+        status:
+          type: string
+
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        filled:
+          type: boolean
+        address:
+          $ref: '#/components/schemas/AddressDto'
+        individual:
+          $ref: '#/components/schemas/IndividualDto'
+
+    AddressDto:
+      allOf:
+        - $ref: '#/components/schemas/AddressUpdateRequest'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+
+    IndividualDto:
+      allOf:
+        - $ref: '#/components/schemas/IndividualUpdateRequest'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid

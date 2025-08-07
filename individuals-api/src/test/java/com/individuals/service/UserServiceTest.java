@@ -9,10 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
@@ -26,6 +28,8 @@ class UserServiceTest {
 
     private UserService userService;
 
+    private ReactiveJwtDecoder jwtDecoder;
+
     private final String USERNAME = "testuser";
     private final String EMAIL = "testuser@example.com";
     private final String PASSWORD = "testpassword";
@@ -38,7 +42,7 @@ class UserServiceTest {
     void setUp() {
         tokenService = new TokenService(keycloakClient);
 
-        userService = new UserService(keycloakClient, tokenService);
+        userService = new UserService(keycloakClient, tokenService, jwtDecoder);
     }
 
     @Test
@@ -76,37 +80,72 @@ class UserServiceTest {
     @Test
     void register_success() {
         UserRegistrationRequest request = new UserRegistrationRequest()
-                .username(USERNAME)
-                .email(EMAIL)
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
-                .password(PASSWORD);
+                .user(new UserCreateRequest()
+                        .username("firstTestuser")
+                        .firstName("testFirstName")
+                        .lastName("testLastName")
+                        .email("firsttest@example.com")
+                        .password("1234")
+                        .confirmPassword("1234")
+                )
+                .address(new AddressCreateRequest()
+                        .address("test")
+                        .city("city")
+                        .zipCode("zip code")
+                        .countryId(1)
+                        .state("state")
+                )
+                .individual(new IndividualCreateRequest()
+                        .passportNumber("1234")
+                        .phoneNumber("287232")
+                        .status("active")
+                );
 
         TokenResponse expectedTokenResponse = new TokenResponse()
                 .accessToken(ACCESS_TOKEN)
                 .refreshToken(REFRESH_TOKEN);
 
-        when(keycloakClient.createUser(USERNAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD)).thenReturn(Mono.empty());
-        when(keycloakClient.requestToken(EMAIL, PASSWORD)).thenReturn(Mono.just(expectedTokenResponse));
+        when(keycloakClient.createUser(request.getUser().getId(), request.getUser().getUsername(), request.getUser().getFirstName(), request.getUser().getLastName(), request.getUser().getEmail(), request.getUser().getPassword()))
+                .thenReturn(Mono.empty());
+
+        when(keycloakClient.requestToken(request.getUser().getEmail(), request.getUser().getPassword())).thenReturn(Mono.just(expectedTokenResponse));
 
         StepVerifier.create(userService.register(request))
                 .expectNextMatches(token -> token.getAccessToken().equals(ACCESS_TOKEN))
                 .verifyComplete();
 
-        verify(keycloakClient).createUser(USERNAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD);
-        verify(keycloakClient).requestToken(EMAIL, PASSWORD);
+        verify(keycloakClient).createUser(request.getUser().getId(), request.getUser().getUsername(), request.getUser().getFirstName(), request.getUser().getLastName(), request.getUser().getEmail(), request.getUser().getPassword());
+        verify(keycloakClient).requestToken(request.getUser().getEmail(), request.getUser().getPassword());
     }
 
     @Test
     void register_failure_userExists() {
         UserRegistrationRequest request = new UserRegistrationRequest()
-                .username(USERNAME)
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
-                .email(EMAIL)
-                .password(PASSWORD);
+                .user(new UserCreateRequest()
+                        .id(UUID.randomUUID())
+                        .username("firstTestuser")
+                        .firstName("testFirstName")
+                        .lastName("testLastName")
+                        .email("firsttest@example.com")
+                        .password("1234")
+                        .confirmPassword("1234")
+                )
+                .address(new AddressCreateRequest()
+                        .address("test")
+                        .city("city")
+                        .zipCode("zip code")
+                        .countryId(1)
+                        .state("state")
+                )
+                .individual(new IndividualCreateRequest()
+                        .passportNumber("1234")
+                        .phoneNumber("287232")
+                        .status("active")
+                );
 
-        when(keycloakClient.createUser(USERNAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD)).thenReturn(Mono.error(new CustomAuthException("User already exists", 409)));
+        when(keycloakClient.createUser(request.getUser().getId(), request.getUser().getUsername(), request.getUser().getFirstName(), request.getUser().getLastName(), request.getUser().getEmail(), request.getUser().getPassword()))
+                .thenReturn(Mono.error(new CustomAuthException("User already exists", 409)));
+
         when(tokenService.getAccessToken(any(), any())).thenReturn(Mono.never());
 
         StepVerifier.create(userService.register(request))
@@ -116,7 +155,7 @@ class UserServiceTest {
                 })
                 .verify();
 
-        verify(keycloakClient).createUser(USERNAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD);
+        verify(keycloakClient).createUser(request.getUser().getId(), request.getUser().getUsername(), request.getUser().getFirstName(), request.getUser().getLastName(), request.getUser().getEmail(), request.getUser().getPassword());
         verifyNoMoreInteractions(keycloakClient);
     }
 

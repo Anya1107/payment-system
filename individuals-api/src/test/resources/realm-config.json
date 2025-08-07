@@ -48,7 +48,9 @@
         }
       ],
       "requiredActions": [],
-      "realmRoles": ["user"]
+      "realmRoles": [
+        "manage-users"
+      ]
     }
   ]
 }

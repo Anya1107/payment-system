@@ -1,0 +1,166 @@
+openapi: 3.0.0
+info:
+  title: User API Client
+  version: 1.0.0
+  description: Feign client for User Service
+
+paths:
+  /api/v1/user:
+    post:
+      tags:
+        - User
+      summary: Register a new user
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../../user-dto/openapi/user-service.yaml#/components/schemas/UserRegistrationRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uuid
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../../user-dto/openapi/user-service.yaml#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '../../user-dto/openapi/user-service.yaml#/components/schemas/ErrorResponse'
+
+    get:
+      tags:
+        - User
+      summary: Get user by email
+      operationId: getUserByEmail
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '../../user-dto/openapi/user-service.yaml#/components/schemas/UserDto'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '../../user-dto/openapi/user-service.yaml#/components/schemas/ErrorResponse'
+
+  /api/v1/user/{id}:
+    get:
+      tags:
+        - User
+      summary: Get user by ID
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '../../user-dto/openapi/user-service.yaml#/components/schemas/UserDto'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '../../user-dto/openapi/user-service.yaml#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - User
+      summary: Update user
+      operationId: updateUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../../user-dto/openapi/user-service.yaml#/components/schemas/UserUpdateRequest'
+      responses:
+        '204':
+          description: No content
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '../../user-dto/openapi/user-service.yaml#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - User
+      summary: Delete user
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: No content
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '../../user-dto/openapi/user-service.yaml#/components/schemas/ErrorResponse'
+
+  /api/v1/user/{id}/compensate:
+    delete:
+      tags:
+        - User
+      summary: Compensate user creation by deleting the user
+      operationId: compensateUserCreation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User compensation completed successfully, no content
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '../../user-dto/openapi/user-service.yaml#/components/schemas/ErrorResponse'
+
+

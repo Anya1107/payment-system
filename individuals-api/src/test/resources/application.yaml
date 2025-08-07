@@ -39,3 +39,7 @@ management:
     metrics:
       export:
         enabled: true
+
+user:
+  service:
+    url: http://localhost:8082

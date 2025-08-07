@@ -1,6 +1,8 @@
 package com.individuals.controller;
 
+import com.client.model.UserUpdateRequest;
 import com.individuals.dto.*;
+import com.individuals.service.UserOrchestrator;
 import com.individuals.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,11 +16,12 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequestMapping("/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
+    private final UserOrchestrator userOrchestrator;
     private final UserService userService;
 
     @PostMapping("/registration")
-    public Mono<ResponseEntity<TokenResponse>> register(@RequestBody UserRegistrationRequest request) {
-        return userService.register(request)
+    public Mono<ResponseEntity<Object>> register(@RequestBody UserRegistrationRequest request) {
+        return userOrchestrator.registerUser(request)
                 .map(tokenResponse -> ResponseEntity.status(HttpStatus.CREATED).body(tokenResponse));
     }
 
@@ -36,7 +39,19 @@ public class AuthController {
 
     @GetMapping("/me")
     public Mono<ResponseEntity<UserInfoResponse>> getCurrentUser(@RequestHeader(AUTHORIZATION) String accessToken) {
-        return userService.getCurrentUser(accessToken)
+        return userOrchestrator.getUserInfo(accessToken)
                 .map(ResponseEntity::ok);
+    }
+
+    @PutMapping
+    public Mono<ResponseEntity<Void>> updateUser(@RequestHeader(AUTHORIZATION) String accessToken, @RequestBody UserUpdateRequest userUpdateRequest) {
+        return userOrchestrator.updateUser(accessToken, userUpdateRequest)
+                .thenReturn(ResponseEntity.noContent().build());
+    }
+
+    @DeleteMapping
+    public Mono<ResponseEntity<Void>> deleteUser(@RequestHeader(AUTHORIZATION) String accessToken) {
+        return userOrchestrator.deleteUser(accessToken)
+                .thenReturn(ResponseEntity.noContent().build());
     }
 }
